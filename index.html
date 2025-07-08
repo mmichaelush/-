@@ -1,196 +1,211 @@
 <!DOCTYPE html>
 <html lang="he" dir="rtl">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>חיפוש רכב מוטמע</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>בדיקת פרטי רכב</title>
+  <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    body {
+      font-family: 'Heebo', sans-serif;
+      background: linear-gradient(to right, #dae2f8, #d6a4a4);
+      margin: 0;
+      padding: 20px;
+    }
+    .container {
+      max-width: 880px;
+      margin: auto;
+      background-color: #ffffff;
+      border-radius: 16px;
+      padding: 40px 30px;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+    }
+    .logo {
+      max-width: 220px;
+      margin: 0 auto 25px;
+      display: block;
+    }
+    h1 {
+      text-align: center;
+      margin-bottom: 10px;
+      color: #222;
+      font-size: 28px;
+    }
+    .description {
+      text-align: center;
+      color: #555;
+      margin-bottom: 30px;
+    }
+    .input-group {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      align-items: stretch;
+    }
+    @media(min-width: 500px) {
+      .input-group {
+        flex-direction: row;
+        justify-content: center;
+      }
+    }
+    input[type="text"] {
+      padding: 14px 16px;
+      border-radius: 10px;
+      border: 1px solid #ccc;
+      font-size: 18px;
+      width: 100%;
+      text-align: center;
+    }
+    button {
+      padding: 14px 26px;
+      background-color: #007bff;
+      color: white;
+      font-size: 17px;
+      font-weight: bold;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #0056b3;
+    }
+    .results {
+      margin-top: 40px;
+      text-align: right;
+    }
+    .loader {
+      border: 5px solid #eee;
+      border-top: 5px solid #3498db;
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      animation: spin 1s linear infinite;
+      margin: 30px auto;
+    }
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+    li {
+      display: flex;
+      justify-content: space-between;
+      padding: 12px 0;
+      border-bottom: 1px solid #eee;
+      font-size: 16px;
+    }
+    .section-title {
+      margin: 35px 0 15px;
+      font-weight: bold;
+      font-size: 20px;
+      border-bottom: 2px solid #007bff;
+      display: inline-block;
+      padding-bottom: 4px;
+      color: #007bff;
+    }
+  </style>
 </head>
 <body>
+  <div class="container">
+    <img src="https://rechavimzelaze.ovh/assets/uploads/system/site-logo.png" alt="לוגו" class="logo">
+    <h1>בדיקת פרטי רכב לפי מספר רישוי</h1>
+    <p class="description">הקלד מספר רכב ולחץ על חיפוש</p>
 
-<!-- ==================== Search Widget Structure ==================== -->
-<div class="search-widget-container">
-    <img src="https://i.imgur.com/8x2t52E.png" alt="לוגו" class="search-logo">
-    <h2>איתור פרטי רכב לפי מספר רישוי</h2>
-    <p>הקלידו מספר רכב ולחצו "חיפוש" כדי לקבל את כל הפרטים.</p>
-    
-    <div class="search-controls">
-        <input type="text" id="licenseInput" placeholder="הקלד מספר רכב">
-        <button id="searchBtn">חיפוש</button>
+    <div class="input-group">
+      <input type="text" id="plate" placeholder="לדוגמה: 1234567" />
+      <button onclick="searchVehicle()"><i class="fas fa-search"></i> חיפוש</button>
     </div>
 
-    <div id="resultsArea">
-        <!-- Search results will be injected here -->
-    </div>
-</div>
+    <div class="results" id="resultsArea"></div>
+  </div>
 
-
-<!-- ==================== CSS Styles ==================== -->
-<style>
-    body { 
-        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-        background-color: #f4f6f9;
-        padding-top: 20px;
-    }
-    .search-widget-container {
-        max-width: 750px;
-        margin: 20px auto;
-        padding: 30px;
-        background-color: #ffffff;
-        border-radius: 12px;
-        box-shadow: 0 4px 15px rgba(0,0,0,0.08);
-        text-align: center;
-    }
-    .search-logo {
-        max-width: 250px;
-        margin-bottom: 20px;
-    }
-    .search-widget-container h2 {
-        margin-bottom: 10px;
-    }
-    .search-widget-container p {
-        color: #666;
-        margin-bottom: 25px;
-    }
-    .search-controls {
-        display: flex;
-        justify-content: center;
-        gap: 10px;
-        margin-bottom: 30px;
-    }
-    #licenseInput {
-        width: 250px;
-        padding: 12px 15px;
-        font-size: 16px;
-        border: 1px solid #ccc;
-        border-radius: 8px;
-        text-align: center;
-    }
-    #searchBtn {
-        padding: 12px 30px;
-        font-size: 16px;
-        font-weight: bold;
-        cursor: pointer;
-        background-color: #007bff;
-        color: white;
-        border: none;
-        border-radius: 8px;
-    }
-    
-    /* Styles for the results area */
-    #resultsArea { 
-        padding: 10px;
-        background-color: #fff; 
-        min-height: 50px; 
-        text-align: right;
-        max-height: 60vh;
-        overflow-y: auto;
-    }
-    .results-container { display: flex; flex-direction: row-reverse; gap: 20px; text-align: right;}
-    .results-column { flex: 1; min-width: 0; }
-    .results-column h5 { border-bottom: 2px solid #eee; padding-bottom: 8px; margin-top: 0; font-weight: bold; }
-    .results-column ul { list-style-type: none; padding: 0; margin: 0; }
-    .results-column li { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #f2f2f2; font-size: 14px;}
-    .results-column li:last-child { border-bottom: none; }
-    .results-column li span { color: #555; text-align: left; }
-
-    .loader { border: 5px solid #f3f3f3; border-top: 5px solid #3498db; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin: 20px auto; }
-    @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-</style>
-
-<!-- ==================== JavaScript Logic ==================== -->
-<script>
-    // Get references to the elements on the page
-    const searchBtn = document.getElementById('searchBtn');
-    const licenseInput = document.getElementById('licenseInput');
-    const resultsArea = document.getElementById('resultsArea');
+  <script>
+    const plateInput = document.getElementById("plate");
+    plateInput.addEventListener("keydown", function (e) {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        searchVehicle();
+      }
+    });
 
     function searchVehicle() {
-        const licensePlate = licenseInput.value.trim();
-        if (!licensePlate) {
-            resultsArea.innerHTML = '<p style="color: red; text-align: center;">אנא הזן מספר רישוי.</p>';
-            return;
+      const plate = plateInput.value.trim();
+      const resultsArea = document.getElementById("resultsArea");
+
+      if (!/^\d+$/.test(plate)) {
+        resultsArea.innerHTML = '<p style="color:red; text-align:center;">אנא הזן מספר רישוי תקני המכיל ספרות בלבד.</p>';
+        return;
+      }
+
+      resultsArea.innerHTML = '<div class="loader"></div>';
+
+      const callbackName = 'jsonp_' + Date.now();
+      const resourceId = '053cea08-09bc-40ec-8f7a-156f0677aff3';
+      const filters = { mispar_rechev: plate };
+      const url = `https://data.gov.il/api/3/action/datastore_search?resource_id=${resourceId}&filters=${encodeURIComponent(JSON.stringify(filters))}&callback=${callbackName}`;
+
+      window[callbackName] = function(data) {
+        if (data.success && data.result.records.length > 0) {
+          displayResults(data.result.records[0]);
+        } else {
+          resultsArea.innerHTML = `<p style="text-align:center;">לא נמצאו נתונים לרכב עם מספר רישוי <strong>${plate}</strong>.</p>`;
         }
-        resultsArea.innerHTML = '<div class="loader"></div>';
+        document.body.removeChild(script);
+        delete window[callbackName];
+      };
 
-        const callbackName = 'jsonpCallback_' + Date.now();
-        const resourceId = '053cea08-09bc-40ec-8f7a-156f0677aff3';
-        const filters = { mispar_rechev: licensePlate };
-        const encodedFilters = encodeURIComponent(JSON.stringify(filters));
-        const url = `https://data.gov.il/api/3/action/datastore_search?resource_id=${resourceId}&filters=${encodedFilters}&callback=${callbackName}`;
-
-        window[callbackName] = function(data) {
-            try {
-                if (data.success && data.result.records.length > 0) {
-                    const vehicle = data.result.records[0];
-                    displayResults(vehicle);
-                } else {
-                    resultsArea.innerHTML = `<p style="text-align: center;">לא נמצא רכב עם מספר רישוי <strong>${licensePlate}</strong>.</p>`;
-                }
-            } catch (e) {
-                resultsArea.innerHTML = '<p style="color: red; text-align: center;">אירעה שגיאה בעיבוד התשובה מהשרת.</p>';
-            } finally {
-                document.body.removeChild(scriptTag);
-                delete window[callbackName];
-            }
-        };
-
-        const scriptTag = document.createElement('script');
-        scriptTag.src = url;
-        
-        scriptTag.onerror = function() {
-            resultsArea.innerHTML = '<p style="color: red; text-align: center;">אירעה שגיאת תקשורת מול שרתי המידע.</p>';
-            document.body.removeChild(scriptTag);
-            delete window[callbackName];
-        };
-        
-        document.body.appendChild(scriptTag);
+      const script = document.createElement('script');
+      script.src = url;
+      script.onerror = function() {
+        resultsArea.innerHTML = '<p style="color:red; text-align:center;">שגיאת תקשורת מול השרת.</p>';
+        document.body.removeChild(script);
+        delete window[callbackName];
+      };
+      document.body.appendChild(script);
     }
-    
+
     function displayResults(vehicle) {
-        const formatDate = (dateString) => {
-            if (!dateString) return 'לא ידוע';
-            const date = new Date(dateString);
-            const options = { year: 'numeric', month: '2-digit', day: (dateString.length > 7) ? '2-digit' : undefined };
-            return date.toLocaleDateString('he-IL', options);
-        };
-        
-        const mainDetails = {
-            'מספר רכב': vehicle.mispar_rechev, 'יצרן': vehicle.tozeret_nm, 'דגם': vehicle.kinuy_mishari,
-            'רמת גימור': vehicle.ramat_gimur, 'שם דגם (יצרן)': vehicle.degem_nm, 'שנת ייצור': vehicle.shnat_yitzur,
-            'מספר שלדה': vehicle.misgeret, 'צבע': vehicle.tzeva_rechev,
-        };
-        
-        const additionalDetails = {
-            'בעלות': vehicle.baalut, 'תוקף רישיון (טסט)': formatDate(vehicle.tokef_dt),
-            'תאריך טסט אחרון': formatDate(vehicle.mivchan_acharon_dt), 'מועד עלייה לכביש': formatDate(vehicle.moed_aliya_lakvish),
-            'סוג דלק': vehicle.sug_delek_nm, 'דגם מנוע': vehicle.degem_manoa,
-            'צמיג קדמי': vehicle.zmig_kidmi, 'צמיג אחורי': vehicle.zmig_ahori,
-            'רמת אבזור בטיחותי': vehicle.ramat_eivzur_betihuty, 'קוד משרד התחבורה': vehicle.horaat_rishum,
-        };
+      const formatDate = (d) => (!d ? 'לא ידוע' : new Date(d).toLocaleDateString('he-IL'));
 
-        let mainHtml = '';
-        for (const [label, value] of Object.entries(mainDetails)) { if (value) mainHtml += `<li><strong>${label}</strong><span>${value}</span></li>`; }
-        
-        let additionalHtml = '';
-        for (const [label, value] of Object.entries(additionalDetails)) { if (value) additionalHtml += `<li><strong>${label}</strong><span>${value}</span></li>`; }
-
-        const finalHtml = `
-            <div class="results-container">
-                <div class="results-column"><h5>פרטי רכב</h5><ul>${mainHtml}</ul></div>
-                <div class="results-column"><h5>מידע נוסף</h5><ul>${additionalHtml}</ul></div>
-            </div>`;
-        resultsArea.innerHTML = finalHtml;
-    }
-
-    // Attach event listeners
-    searchBtn.onclick = searchVehicle;
-    licenseInput.addEventListener('keydown', (event) => {
-        if (event.key === 'Enter') {
-            event.preventDefault();
-            searchVehicle();
+      const groups = {
+        'פרטי רכב': {
+          'מספר רכב': vehicle.mispar_rechev,
+          'יצרן': vehicle.tozeret_nm,
+          'דגם': vehicle.kinuy_mishari,
+          'רמת גימור': vehicle.ramat_gimur,
+          'שם דגם (יצרן)': vehicle.degem_nm,
+          'שנת ייצור': vehicle.shnat_yitzur,
+          'מספר שלדה': vehicle.misgeret,
+          'צבע': vehicle.tzeva_rechev
+        },
+        'נתונים נוספים': {
+          'בעלות': vehicle.baalut,
+          'תוקף רישיון': formatDate(vehicle.tokef_dt),
+          'תאריך טסט אחרון': formatDate(vehicle.mivchan_acharon_dt),
+          'מועד עלייה לכביש': formatDate(vehicle.moed_aliya_lakvish),
+          'סוג דלק': vehicle.sug_delek_nm,
+          'דגם מנוע': vehicle.degem_manoa,
+          'רמת זיהום אוויר': vehicle.kvutzat_zihum,
+          'צמיג קדמי': vehicle.zmig_kidmi,
+          'צמיג אחורי': vehicle.zmig_ahori
         }
-    });
-</script>
+      };
 
+      let finalHtml = '';
+      for (const [title, details] of Object.entries(groups)) {
+        finalHtml += `<div><h4 class="section-title">${title}</h4><ul>`;
+        for (const [label, val] of Object.entries(details)) {
+          if (val) finalHtml += `<li><strong>${label}</strong><span>${val}</span></li>`;
+        }
+        finalHtml += '</ul></div>';
+      }
+      document.getElementById("resultsArea").innerHTML = finalHtml;
+    }
+  </script>
 </body>
 </html>
