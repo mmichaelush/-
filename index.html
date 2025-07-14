@@ -7,36 +7,57 @@
   <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
+    /* --- הגדרות כלליות וצבעים --- */
+    :root {
+      --primary-blue: #3B82F6;
+      --light-blue: #EFF6FF;
+      --dark-blue: #1E3A8A;
+      --text-gray: #6B7280;
+      --border-color: #D1D5DB;
+    }
+
     body {
       font-family: 'Heebo', sans-serif;
-      background: linear-gradient(to right, #dae2f8, #d6a4a4);
+      background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
       margin: 0;
       padding: 20px;
+      color: #333;
     }
+
+    /* --- קונטיינר מרכזי --- */
     .container {
       max-width: 880px;
-      margin: auto;
+      margin: 40px auto;
       background-color: #ffffff;
-      border-radius: 16px;
+      border-radius: 24px;
       padding: 40px 30px;
-      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+      box-shadow: 0 20px 40px -5px rgba(27, 100, 240, 0.15);
+      border: 1px solid rgba(255, 255, 255, 0.5);
     }
+    
     .logo {
-      max-width: 220px;
+      max-width: 200px;
       margin: 0 auto 25px;
       display: block;
     }
+
+    /* --- טיפוגרפיה וכותרות --- */
     h1 {
       text-align: center;
-      margin-bottom: 10px;
-      color: #222;
-      font-size: 28px;
+      margin-bottom: 8px;
+      color: var(--dark-blue);
+      font-size: 32px;
+      font-weight: 700;
     }
+
     .description {
       text-align: center;
-      color: #555;
-      margin-bottom: 30px;
+      color: var(--text-gray);
+      margin-bottom: 35px;
+      font-size: 18px;
     }
+
+    /* --- שדה קלט וכפתור חיפוש --- */
     .input-group {
       display: flex;
       flex-direction: column;
@@ -49,76 +70,118 @@
         justify-content: center;
       }
     }
+
     input[type="text"] {
-      padding: 14px 16px;
-      border-radius: 10px;
-      border: 1px solid #ccc;
+      padding: 16px 20px;
+      border-radius: 12px;
+      border: 1px solid var(--border-color);
       font-size: 18px;
       width: 100%;
       text-align: center;
+      transition: all 0.2s ease-in-out;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.05);
     }
+    input[type="text"]:focus {
+      outline: none;
+      border-color: var(--primary-blue);
+      box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.2);
+    }
+
     button {
-      padding: 14px 26px;
-      background-color: #007bff;
+      padding: 16px 28px;
+      background-color: var(--primary-blue);
       color: white;
       font-size: 17px;
       font-weight: bold;
       border: none;
-      border-radius: 10px;
+      border-radius: 12px;
       cursor: pointer;
+      transition: all 0.2s ease-in-out;
+      box-shadow: 0 4px 12px -2px rgba(59, 130, 246, 0.4);
     }
     button:hover {
-      background-color: #0056b3;
+      background-color: #2563EB;
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px -2px rgba(59, 130, 246, 0.5);
     }
+    button:disabled {
+      background-color: #93C5FD;
+      cursor: not-allowed;
+      transform: translateY(0);
+      box-shadow: none;
+    }
+    
+    /* --- אזור התוצאות --- */
     .results {
       margin-top: 40px;
       text-align: right;
     }
-    .loader {
-      border: 5px solid #eee;
-      border-top: 5px solid #3498db;
-      border-radius: 50%;
-      width: 40px;
-      height: 40px;
-      animation: spin 1s linear infinite;
-      margin: 30px auto;
+    
+    .section-title {
+      margin: 35px 0 15px;
+      font-weight: bold;
+      font-size: 22px;
+      border-bottom: 3px solid var(--primary-blue);
+      display: inline-block;
+      padding-bottom: 6px;
+      color: var(--dark-blue);
     }
-    @keyframes spin {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
-    }
+
     ul {
       list-style: none;
       padding: 0;
       margin: 0;
     }
+
     li {
       display: flex;
       justify-content: space-between;
-      padding: 12px 0;
-      border-bottom: 1px solid #eee;
+      padding: 14px 10px;
+      border-bottom: 1px solid #f0f2f5;
       font-size: 16px;
+      border-radius: 8px;
+      transition: background-color 0.2s ease;
     }
-    .section-title {
-      margin: 35px 0 15px;
-      font-weight: bold;
-      font-size: 20px;
-      border-bottom: 2px solid #007bff;
-      display: inline-block;
-      padding-bottom: 4px;
-      color: #007bff;
+    li:last-child {
+      border-bottom: none;
+    }
+    li:hover {
+      background-color: var(--light-blue);
+    }
+    
+    li strong {
+      margin-left: 15px;
+      color: #333;
+    }
+    li span {
+        color: var(--text-gray);
+    }
+
+    /* --- אנימציית טעינה --- */
+    .loader {
+      border: 5px solid #E5E7EB;
+      border-top: 5px solid var(--primary-blue);
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      animation: spin 1s linear infinite;
+      margin: 40px auto;
+    }
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
     }
   </style>
 </head>
 <body>
   <div class="container">
-    <img src="https://rechavimzelaze.ovh/assets/uploads/system/site-logo.png" alt="לוגו" class="logo">
+    <svg class="logo" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="color: var(--primary-blue);"><path d="M18.91 14.1C18.91 14.1 18.81 14.7 18.21 14.7C17.61 14.7 15.61 14.7 15.61 14.7M5.01002 14.1C5.01002 14.1 5.11002 14.7 5.71002 14.7C6.31002 14.7 8.31002 14.7 8.31002 14.7M15.61 14.7L8.31002 14.7M15.61 14.7C15.61 14.7 16.01 12.7 15.01 12.2C14.01 11.7 12.31 12.5 12.01 12.5C11.71 12.5 9.91002 11.7 8.91002 12.2C7.91002 12.7 8.31002 14.7 8.31002 14.7M17.91 9H6.01002C5.01002 9 5.01002 8.9 5.01002 8L5.31002 6.5C5.31002 6.5 5.71002 5 6.91002 5H17.01C18.21 5 18.61 6.5 18.61 6.5L18.91 8C18.91 8.9 18.91 9 17.91 9Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path></svg>
     <h1>בדיקת פרטי רכב לפי מספר רישוי</h1>
     <p class="description">הקלד מספר רכב ולחץ על חיפוש</p>
 
     <div class="input-group">
-      <input type="text" id="plate" placeholder="לדוגמה: 1234567" />
-      <button onclick="searchVehicle()"><i class="fas fa-search"></i> חיפוש</button>
+      <input type="text" id="plate" placeholder="לדוגמה: 12-345-67" />
+      <button id="searchButton" onclick="searchVehicle()"><i class="fas fa-search"></i> חיפוש</button>
     </div>
 
     <div class="results" id="resultsArea"></div>
@@ -126,85 +189,234 @@
 
   <script>
     const plateInput = document.getElementById("plate");
-    plateInput.addEventListener("keydown", function (e) {
+    const searchButton = document.getElementById("searchButton");
+    const resultsArea = document.getElementById("resultsArea");
+    
+    const VEHICLE_BY_PLATE_RESOURCE_ID = '053cea08-09bc-40ec-8f7a-156f0677aff3';
+    const MODEL_DETAILS_RESOURCE_ID = '142afde2-6228-49f9-8a29-9b6c3a0cbe40';
+    const DISABLED_PERMIT_RESOURCE_ID = 'c8b9f9c8-4612-4068-934f-d4acd2e3c06e';
+    const API_BASE_URL = 'https://data.gov.il/api/3/action/datastore_search';
+
+    plateInput.addEventListener("keydown", (e) => {
       if (e.key === "Enter") {
         e.preventDefault();
         searchVehicle();
       }
     });
 
-    function searchVehicle() {
-      const plate = plateInput.value.trim();
-      const resultsArea = document.getElementById("resultsArea");
+    function fetchJsonpAsPromise(resourceId, queryParams, useQ = false) {
+        console.log(`[LOG] מבצע קריאת API למאגר ${resourceId} עם פרמטרים:`, queryParams);
+        return new Promise((resolve, reject) => {
+            const callbackName = 'jsonp_' + Date.now() + '_' + Math.floor(Math.random() * 100000);
+            
+            const params = new URLSearchParams({
+                resource_id: resourceId,
+                callback: callbackName
+            });
+            
+            if (useQ) {
+              if (typeof queryParams === 'string') {
+                params.append('q', queryParams);
+              } else {
+                params.append('q', JSON.stringify(queryParams));
+              }
+            } else {
+              params.append('filters', JSON.stringify(queryParams));
+            }
 
-      if (!/^\d+$/.test(plate)) {
-        resultsArea.innerHTML = '<p style="color:red; text-align:center;">אנא הזן מספר רישוי תקני המכיל ספרות בלבד.</p>';
+            const url = `${API_BASE_URL}?${params.toString()}`;
+            console.log(`[DEBUG] כתובת ה-URL המלאה שנשלחת: ${url}`);
+
+            window[callbackName] = (data) => {
+                document.body.removeChild(script);
+                delete window[callbackName];
+                if (data.success) {
+                    console.log(`[LOG] קריאה ל-${resourceId} הצליחה.`, data.result);
+                    resolve(data.result);
+                } else {
+                    console.error(`[LOG] קריאה ל-${resourceId} נכשלה (API).`, data);
+                    reject(new Error('ה-API החזיר שגיאה.'));
+                }
+            };
+
+            const script = document.createElement('script');
+            script.src = url;
+            script.onerror = () => {
+                document.body.removeChild(script);
+                delete window[callbackName];
+                console.error(`[LOG] שגיאת רשת בקריאה ל-${resourceId}.`);
+                reject(new Error('שגיאת רשת או תקשורת מול השרת.'));
+            };
+            document.body.appendChild(script);
+        });
+    }
+
+    async function searchVehicle() {
+      const originalPlate = plateInput.value.trim();
+      const plate = originalPlate.replace(/-/g, '');
+      console.log(`[LOG] התחיל חיפוש עבור מספר רכב: ${originalPlate} (נקי: ${plate})`);
+      
+      if (!/^\d{7,8}$/.test(plate)) {
+        resultsArea.innerHTML = `<p style="color:red; text-align:center;">אנא הזן מספר רישוי תקני (7 או 8 ספרות).</p>`;
         return;
       }
-
+      
+      searchButton.disabled = true;
+      searchButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> מחפש...';
       resultsArea.innerHTML = '<div class="loader"></div>';
 
-      const callbackName = 'jsonp_' + Date.now();
-      const resourceId = '053cea08-09bc-40ec-8f7a-156f0677aff3';
-      const filters = { mispar_rechev: plate };
-      const url = `https://data.gov.il/api/3/action/datastore_search?resource_id=${resourceId}&filters=${encodeURIComponent(JSON.stringify(filters))}&callback=${callbackName}`;
+      try {
+        const vehicleDataResult = await fetchJsonpAsPromise(VEHICLE_BY_PLATE_RESOURCE_ID, { mispar_rechev: plate }, false);
 
-      window[callbackName] = function(data) {
-        if (data.success && data.result.records.length > 0) {
-          displayResults(data.result.records[0]);
-        } else {
+        if (vehicleDataResult.records.length === 0) {
           resultsArea.innerHTML = `<p style="text-align:center;">לא נמצאו נתונים לרכב עם מספר רישוי <strong>${plate}</strong>.</p>`;
+          return;
         }
-        document.body.removeChild(script);
-        delete window[callbackName];
-      };
 
-      const script = document.createElement('script');
-      script.src = url;
-      script.onerror = function() {
-        resultsArea.innerHTML = '<p style="color:red; text-align:center;">שגיאת תקשורת מול השרת.</p>';
-        document.body.removeChild(script);
-        delete window[callbackName];
-      };
-      document.body.appendChild(script);
+        let combinedVehicleData = vehicleDataResult.records[0];
+        console.log("[LOG] נתונים שהתקבלו מקריאה #1:", combinedVehicleData);
+        
+        const specificRamatGimur = combinedVehicleData.ramat_gimur;
+
+        console.log("[LOG] מתחיל בדיקות מקבילות לפרטים טכניים ולתו נכה...");
+
+        const modelDetailsPromise = (async () => {
+            const { tozeret_nm, kinuy_mishari, degem_nm, shnat_yitzur } = combinedVehicleData;
+            if (tozeret_nm && shnat_yitzur && (degem_nm || kinuy_mishari)) {
+                const normalizedTozeretNm = tozeret_nm.split('-')[0];
+                let modelDataResult;
+                
+                if (degem_nm) {
+                    modelDataResult = await fetchJsonpAsPromise(MODEL_DETAILS_RESOURCE_ID, { tozeret_nm: normalizedTozeretNm, degem_nm: degem_nm, shnat_yitzur: String(shnat_yitzur) }, true);
+                }
+                if (!modelDataResult || modelDataResult.records.length === 0) {
+                    modelDataResult = await fetchJsonpAsPromise(MODEL_DETAILS_RESOURCE_ID, { tozeret_nm: normalizedTozeretNm, kinuy_mishari: kinuy_mishari, shnat_yitzur: String(shnat_yitzur) }, true);
+                }
+                if (!modelDataResult || modelDataResult.records.length === 0) {
+                    modelDataResult = await fetchJsonpAsPromise(MODEL_DETAILS_RESOURCE_ID, { tozeret_nm: normalizedTozeretNm, kinuy_mishari: kinuy_mishari }, true);
+                }
+                
+                if (modelDataResult && modelDataResult.records.length > 0) {
+                    return modelDataResult.records[0];
+                }
+            }
+            throw new Error("לא נמצאו פרטי דגם טכניים תואמים.");
+        })();
+        
+        const permitPromise = fetchJsonpAsPromise(DISABLED_PERMIT_RESOURCE_ID, plate, true);
+        
+        const [modelResult, permitResult] = await Promise.allSettled([modelDetailsPromise, permitPromise]);
+        
+        console.log("[LOG] תוצאת בדיקת פרטים טכניים:", modelResult);
+        console.log("[LOG] תוצאת בדיקת תו נכה:", permitResult);
+        
+        if (modelResult.status === 'fulfilled' && modelResult.value) {
+            console.log("[LOG] איחוד נתונים טכניים...");
+            combinedVehicleData = { ...combinedVehicleData, ...modelResult.value };
+            if(specificRamatGimur) {
+                combinedVehicleData.ramat_gimur = specificRamatGimur;
+            }
+        } else {
+            console.warn("[LOG] לא אוחדו נתונים טכניים:", modelResult.reason?.message || modelResult.reason);
+        }
+
+        if (permitResult.status === 'fulfilled' && permitResult.value.records.length > 0) {
+            console.log("[LOG] נמצא תו נכה לרכב זה.");
+            combinedVehicleData.has_disabled_permit = true;
+        } else {
+            console.log("[LOG] לא נמצא תו נכה לרכב זה.");
+            combinedVehicleData.has_disabled_permit = false;
+        }
+        
+        console.log("[LOG] נתונים סופיים להצגה:", combinedVehicleData);
+        displayResults(combinedVehicleData);
+
+      } catch (error) {
+        console.error("[LOG] אירעה שגיאה כללית בתהליך החיפוש:", error);
+        resultsArea.innerHTML = `<p style="color:red; text-align:center;">${error.message}</p>`;
+      } finally {
+        searchButton.disabled = false;
+        searchButton.innerHTML = '<i class="fas fa-search"></i> חיפוש';
+      }
     }
 
     function displayResults(vehicle) {
       const formatDate = (d) => (!d ? 'לא ידוע' : new Date(d).toLocaleDateString('he-IL'));
+      const formatBoolean = (val) => (val === true || val === '1' || val === 1 ? 'קיים' : 'לא קיים');
+      
+      const hanaaTypes = new Set();
+      if (vehicle.technologiat_hanaa_nm) hanaaTypes.add(vehicle.technologiat_hanaa_nm);
+      if (vehicle.hanaa_nm) hanaaTypes.add(vehicle.hanaa_nm);
+      const combinedHanaa = Array.from(hanaaTypes).join(' / ');
 
       const groups = {
         'פרטי רכב': {
           'מספר רכב': vehicle.mispar_rechev,
-          'יצרן': vehicle.tozeret_nm,
-          'דגם': vehicle.kinuy_mishari,
+          'יצרן': vehicle.tozar || vehicle.tozeret_nm.split('-')[0],
+          'ארץ יצור': vehicle.tozeret_eretz_nm,
+          'כינוי מסחרי': vehicle.kinuy_mishari,
+          'דגם יצרן': vehicle.degem_nm,
           'רמת גימור': vehicle.ramat_gimur,
-          'שם דגם (יצרן)': vehicle.degem_nm,
           'שנת ייצור': vehicle.shnat_yitzur,
+          'תיבת הילוכים': vehicle.automatic_ind === '1' || vehicle.automatic_ind === 1 ? 'אוטומטית' : 'ידנית',
+          'צבע': vehicle.tzeva_rechev,
           'מספר שלדה': vehicle.misgeret,
-          'צבע': vehicle.tzeva_rechev
         },
-        'נתונים נוספים': {
-          'בעלות': vehicle.baalut,
-          'תוקף רישיון': formatDate(vehicle.tokef_dt),
+        'רישוי ובעלות': {
+          'תו חניה לנכה': formatBoolean(vehicle.has_disabled_permit),
+          'סוג בעלות נוכחית': vehicle.baalut,
+          'הוראת רישום': vehicle.horaat_rishum,
+          'קבוצת אגרה': vehicle.kvuzat_agra_cd,
+          'תוקף רישיון (טסט)': formatDate(vehicle.tokef_dt),
           'תאריך טסט אחרון': formatDate(vehicle.mivchan_acharon_dt),
           'מועד עלייה לכביש': formatDate(vehicle.moed_aliya_lakvish),
-          'סוג דלק': vehicle.sug_delek_nm,
+        },
+        'נתונים טכניים': {
+          'סוג מרכב': vehicle.merkav,
+          'סוג דלק': vehicle.sug_delek_nm || vehicle.delek_nm,
+          'נפח מנוע (סמ"ק)': vehicle.nefah_manoa,
           'דגם מנוע': vehicle.degem_manoa,
+          'הספק מנוע (כ"ס)': vehicle.koah_sus,
+          'סוג הנעה': combinedHanaa,
+          'משקל כולל': vehicle.mishkal_kolel,
+          'מספר דלתות': vehicle.mispar_dlatot,
+          'מספר מקומות ישיבה': vehicle.mispar_moshavim,
           'רמת זיהום אוויר': vehicle.kvutzat_zihum,
-          'צמיג קדמי': vehicle.zmig_kidmi,
-          'צמיג אחורי': vehicle.zmig_ahori
+          'מידות צמיגים': vehicle.zmig_ahori
+        },
+        'מערכות בטיחות': {
+          'כריות אוויר': vehicle.mispar_kariot_avir,
+          'מערכת ABS': formatBoolean(vehicle.abs_ind),
+          'בקרת יציבות': formatBoolean(vehicle.bakarat_yatzivut_ind),
+          'בקרת סטייה מנתיב': formatBoolean(vehicle.bakarat_stiya_menativ_ind),
+          'ניטור מרחק מלפנים': formatBoolean(vehicle.nitur_merhak_milfanim_ind),
+          'זיהוי בשטח "מת"': formatBoolean(vehicle.zihuy_beshetah_nistar_ind),
+          'זיהוי הולכי רגל': formatBoolean(vehicle.zihuy_holchey_regel_ind),
+          'מצלמת רוורס': formatBoolean(vehicle.matzlemat_reverse_ind),
+          'חיישני לחץ אוויר': formatBoolean(vehicle.hayshaney_lahatz_avir_batzmigim_ind)
+        },
+        'אבזור': {
+          'הגה כוח': formatBoolean(vehicle.hege_koah_ind),
+          'חלונות חשמל': vehicle.mispar_halonot_hashmal,
+          'חלון בגג': formatBoolean(vehicle.halon_bagg_ind),
+          'גלגלי סגסוגת קלה': formatBoolean(vehicle.galgaley_sagsoget_kala_ind),
+          'בקרת שיוט אדפטיבית': formatBoolean(vehicle.bakarat_shyut_adaptivit_ind)
         }
       };
 
       let finalHtml = '';
       for (const [title, details] of Object.entries(groups)) {
-        finalHtml += `<div><h4 class="section-title">${title}</h4><ul>`;
+        let sectionHtml = '';
         for (const [label, val] of Object.entries(details)) {
-          if (val) finalHtml += `<li><strong>${label}</strong><span>${val}</span></li>`;
+          if (val !== null && val !== undefined && val !== '' && val !== 'לא ידוע' && val !== '0' && val !== 0) {
+            sectionHtml += `<li><strong>${label}</strong><span>${val}</span></li>`;
+          }
         }
-        finalHtml += '</ul></div>';
+        if (sectionHtml) {
+          finalHtml += `<div><h4 class="section-title">${title}</h4><ul>${sectionHtml}</ul></div>`;
+        }
       }
-      document.getElementById("resultsArea").innerHTML = finalHtml;
+      resultsArea.innerHTML = finalHtml;
     }
   </script>
 </body>
