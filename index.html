@@ -37,13 +37,7 @@
     li span { color: var(--text-gray); }
     .loader { border: 5px solid #E5E7EB; border-top: 5px solid var(--primary-blue); border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin: 40px auto; }
     @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-    @media print {
-      body > *:not(.results-wrapper), .actions-container { display: none; }
-      .results-wrapper { display: block !important; box-shadow: none; border: none; }
-      .container { box-shadow: none; border: none; margin: 0; padding: 0; max-width: 100%; }
-      li { background-color: transparent !important; }
-      h1, .description, .input-group, #action-buttons { display: none; }
-    }
+    @media print { body { padding: 0; margin: 0; } #main-content, #action-buttons, .loader { display: none !important; } .container { box-shadow: none !important; border: none !important; margin: 0 !important; padding: 0 !important; max-width: 100% !important; width: 100% !important; } .results-wrapper { display: block !important; } li { background-color: transparent !important; } }
   </style>
 </head>
 <body>
@@ -78,6 +72,7 @@
     const DISABLED_PERMIT_RESOURCE_ID = 'c8b9f9c8-4612-4068-934f-d4acd2e3c06e';
     const OFF_ROAD_VEHICLE_RESOURCE_ID = '851ecab1-0622-4dbe-a6c7-f950cf82abf9';
     const FROZEN_VEHICLE_RESOURCE_ID = 'f6efe89a-fb3d-43a4-bb61-9bf12a9b9099';
+    const PERSONAL_IMPORT_RESOURCE_ID = '03adc637-b6fe-402b-9937-7c3d3afc9140';
     
     const API_BASE_URL = 'https://data.gov.il/api/3/action/datastore_search';
 
@@ -100,10 +95,7 @@
     const formatBoolean = (val) => (val === true || val === '1' || val === 1 ? 'קיים' : 'לא קיים');
 
     plateInput.addEventListener("keydown", (e) => {
-      if (e.key === "Enter") {
-        e.preventDefault();
-        searchVehicle();
-      }
+      if (e.key === "Enter") { e.preventDefault(); searchVehicle(); }
     });
 
     function fetchJsonpAsPromise(resourceId, queryParams, useQ = false) {
@@ -133,6 +125,35 @@
             document.body.appendChild(script);
         });
     }
+    
+    async function enrichAndDisplay(vehicleData) {
+        const specificRamatGimur = vehicleData.ramat_gimur;
+
+        const modelDetailsPromise = (async () => {
+            const { tozeret_nm, kinuy_mishari, degem_nm, shnat_yitzur } = vehicleData;
+            if (tozeret_nm && shnat_yitzur && (degem_nm || kinuy_mishari)) {
+                const normalizedTozeretNm = tozeret_nm.split('-')[0];
+                let modelDataResult;
+                if (degem_nm) modelDataResult = await fetchJsonpAsPromise(MODEL_DETAILS_RESOURCE_ID, { tozeret_nm: normalizedTozeretNm, degem_nm: degem_nm, shnat_yitzur: String(shnat_yitzur) }, true);
+                if (!modelDataResult || modelDataResult.records.length === 0) modelDataResult = await fetchJsonpAsPromise(MODEL_DETAILS_RESOURCE_ID, { tozeret_nm: normalizedTozeretNm, kinuy_mishari: kinuy_mishari, shnat_yitzur: String(shnat_yitzur) }, true);
+                if (!modelDataResult || modelDataResult.records.length === 0) modelDataResult = await fetchJsonpAsPromise(MODEL_DETAILS_RESOURCE_ID, { tozeret_nm: normalizedTozeretNm, kinuy_mishari: kinuy_mishari }, true);
+                if (modelDataResult && modelDataResult.records.length > 0) return modelDataResult.records[0];
+            }
+            throw new Error("לא נמצאו פרטי דגם טכניים תואמים.");
+        })();
+        
+        const permitPromise = fetchJsonpAsPromise(DISABLED_PERMIT_RESOURCE_ID, vehicleData.mispar_rechev.toString(), true);
+        const [modelResult, permitResult] = await Promise.allSettled([modelDetailsPromise, permitPromise]);
+        
+        let finalData = { ...vehicleData };
+        if (modelResult.status === 'fulfilled' && modelResult.value) {
+            finalData = { ...finalData, ...modelResult.value };
+            if (specificRamatGimur) finalData.ramat_gimur = specificRamatGimur;
+        }
+        finalData.has_disabled_permit = (permitResult.status === 'fulfilled' && permitResult.value.records.length > 0);
+        
+        displayResults(finalData);
+    }
 
     async function searchVehicle() {
       const originalPlate = plateInput.value.trim();
@@ -147,54 +168,33 @@
       searchButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> מחפש...';
       resultsArea.innerHTML = '<div class="loader"></div>';
       actionButtons.classList.add('hidden');
+      const newUrl = `${window.location.pathname}?search=${currentPlate}`;
+      window.history.pushState({plate: currentPlate}, '', newUrl);
 
       try {
-        const vehicleDataResult = await fetchJsonpAsPromise(VEHICLE_BY_PLATE_RESOURCE_ID, { mispar_rechev: currentPlate }, false);
+        const activePromise = fetchJsonpAsPromise(VEHICLE_BY_PLATE_RESOURCE_ID, { mispar_rechev: currentPlate }, false);
+        const importPromise = fetchJsonpAsPromise(PERSONAL_IMPORT_RESOURCE_ID, { mispar_rechev: currentPlate }, false);
+        const offRoadPromise = fetchJsonpAsPromise(OFF_ROAD_VEHICLE_RESOURCE_ID, { mispar_rechev: currentPlate }, false);
+        const frozenPromise = fetchJsonpAsPromise(FROZEN_VEHICLE_RESOURCE_ID, { mispar_rechev: currentPlate }, false);
 
-        if (vehicleDataResult.records.length > 0) {
-            let combinedVehicleData = vehicleDataResult.records[0];
-            const specificRamatGimur = combinedVehicleData.ramat_gimur;
-
-            const modelDetailsPromise = (async () => {
-                const { tozeret_nm, kinuy_mishari, degem_nm, shnat_yitzur } = combinedVehicleData;
-                if (tozeret_nm && shnat_yitzur && (degem_nm || kinuy_mishari)) {
-                    const normalizedTozeretNm = tozeret_nm.split('-')[0];
-                    let modelDataResult;
-                    if (degem_nm) modelDataResult = await fetchJsonpAsPromise(MODEL_DETAILS_RESOURCE_ID, { tozeret_nm: normalizedTozeretNm, degem_nm: degem_nm, shnat_yitzur: String(shnat_yitzur) }, true);
-                    if (!modelDataResult || modelDataResult.records.length === 0) modelDataResult = await fetchJsonpAsPromise(MODEL_DETAILS_RESOURCE_ID, { tozeret_nm: normalizedTozeretNm, kinuy_mishari: kinuy_mishari, shnat_yitzur: String(shnat_yitzur) }, true);
-                    if (!modelDataResult || modelDataResult.records.length === 0) modelDataResult = await fetchJsonpAsPromise(MODEL_DETAILS_RESOURCE_ID, { tozeret_nm: normalizedTozeretNm, kinuy_mishari: kinuy_mishari }, true);
-                    if (modelDataResult && modelDataResult.records.length > 0) return modelDataResult.records[0];
-                }
-                throw new Error("לא נמצאו פרטי דגם טכניים תואמים.");
-            })();
-            
-            const permitPromise = fetchJsonpAsPromise(DISABLED_PERMIT_RESOURCE_ID, currentPlate, true);
-            const [modelResult, permitResult] = await Promise.allSettled([modelDetailsPromise, permitPromise]);
-            
-            if (modelResult.status === 'fulfilled' && modelResult.value) {
-                combinedVehicleData = { ...combinedVehicleData, ...modelResult.value };
-                if(specificRamatGimur) combinedVehicleData.ramat_gimur = specificRamatGimur;
-            }
-            combinedVehicleData.has_disabled_permit = (permitResult.status === 'fulfilled' && permitResult.value.records.length > 0);
-            displayResults(combinedVehicleData);
-
+        const [activeResult, importResult, offRoadResult, frozenResult] = await Promise.allSettled([activePromise, importPromise, offRoadPromise, frozenPromise]);
+        
+        if (activeResult.status === 'fulfilled' && activeResult.value.records.length > 0) {
+            await enrichAndDisplay(activeResult.value.records[0]);
+        } else if (importResult.status === 'fulfilled' && importResult.value.records.length > 0) {
+            let vehicleData = importResult.value.records[0];
+            vehicleData.is_personal_import = true;
+            await enrichAndDisplay(vehicleData);
+        } else if (offRoadResult.status === 'fulfilled' && offRoadResult.value.records.length > 0) {
+            const record = offRoadResult.value.records[0];
+            const statusHtml = `<div class="status-message error"><strong>סטטוס הרכב: הורד מהכביש</strong><ul style="text-align: right; font-size: 16px; margin-top: 15px; list-style-position: inside;"><li><strong>תאריך ביטול:</strong> ${formatDate(record.bitul_dt)}</li></ul></div>`;
+            displayResults(record, statusHtml);
+        } else if (frozenResult.status === 'fulfilled' && frozenResult.value.records.length > 0) {
+            const record = frozenResult.value.records[0];
+            const statusHtml = `<div class="status-message"><strong>סטטוס הרכב: רישיון לא פעיל (מוקפא)</strong><ul style="text-align: right; font-size: 16px; margin-top: 15px; list-style-position: inside;"><li><strong>סיבה:</strong> ${record.sug_peula_nm || 'לא צוין'}</li><li><strong>תאריך ביצוע:</strong> ${formatDate(record.taarich_bitzul)}</li></ul></div>`;
+            displayResults(record, statusHtml);
         } else {
-            const offRoadPromise = fetchJsonpAsPromise(OFF_ROAD_VEHICLE_RESOURCE_ID, { mispar_rechev: currentPlate }, false);
-            const frozenPromise = fetchJsonpAsPromise(FROZEN_VEHICLE_RESOURCE_ID, { mispar_rechev: currentPlate }, false);
-            const [offRoadResult, frozenResult] = await Promise.allSettled([offRoadPromise, frozenPromise]);
-            let statusHtml = '';
-            let inactiveVehicleData = null;
-
-            if (offRoadResult.status === 'fulfilled' && offRoadResult.value.records.length > 0) {
-                inactiveVehicleData = offRoadResult.value.records[0];
-                statusHtml = `<div class="status-message error"><strong>סטטוס הרכב: הורד מהכביש</strong><ul style="text-align: right; font-size: 16px; margin-top: 15px; list-style-position: inside;"><li><strong>תאריך ביטול:</strong> ${formatDate(inactiveVehicleData.bitul_dt)}</li></ul></div>`;
-            } else if (frozenResult.status === 'fulfilled' && frozenResult.value.records.length > 0) {
-                inactiveVehicleData = frozenResult.value.records[0];
-                statusHtml = `<div class="status-message"><strong>סטטוס הרכב: רישיון לא פעיל (מוקפא)</strong><ul style="text-align: right; font-size: 16px; margin-top: 15px; list-style-position: inside;"><li><strong>סיבה:</strong> ${inactiveVehicleData.sug_peula_nm || 'לא צוין'}</li><li><strong>תאריך ביצוע:</strong> ${formatDate(inactiveVehicleData.taarich_bitzul)}</li></ul></div>`;
-            }
-            
-            if (inactiveVehicleData) displayResults(inactiveVehicleData, statusHtml);
-            else resultsArea.innerHTML = `<p style="text-align:center;">לא נמצאו נתונים לרכב עם מספר רישוי <strong>${currentPlate}</strong> באף אחד מהמאגרים.</p>`;
+            resultsArea.innerHTML = `<p style="text-align:center;">לא נמצאו נתונים לרכב עם מספר רישוי <strong>${currentPlate}</strong> באף אחד מהמאגרים.</p>`;
         }
       } catch (error) {
         resultsArea.innerHTML = `<p style="color:red; text-align:center;">${error.message}</p>`;
@@ -210,18 +210,20 @@
       if (vehicle.technologiat_hanaa_nm) hanaaTypes.add(vehicle.technologiat_hanaa_nm);
       if (vehicle.hanaa_nm) hanaaTypes.add(vehicle.hanaa_nm);
       const combinedHanaa = Array.from(hanaaTypes).join(' / ');
-      const groups = {
+
+      displayResults.groups = {
         'פרטי רכב': { 'מספר רכב': vehicle.mispar_rechev, 'יצרן': vehicle.tozar || vehicle.tozeret_nm?.split('-')[0], 'ארץ יצור': vehicle.tozeret_eretz_nm, 'כינוי מסחרי': vehicle.kinuy_mishari, 'דגם יצרן': vehicle.degem_nm, 'רמת גימור': vehicle.ramat_gimur, 'שנת ייצור': vehicle.shnat_yitzur, 'תיבת הילוכים': (vehicle.automatic_ind === '1' || vehicle.automatic_ind === 1) ? 'אוטומטית' : 'ידנית', 'צבע': vehicle.tzeva_rechev, 'מספר שלדה': vehicle.misgeret, },
-        'רישוי ובעלות': { 'תו חניה לנכה': formatBoolean(vehicle.has_disabled_permit), 'סוג בעלות נוכחית': vehicle.baalut, 'הוראת רישום': vehicle.horaat_rishum, 'קבוצת אגרה': vehicle.kvuzat_agra_cd, 'תוקף רישיון (טסט)': formatDate(vehicle.tokef_dt), 'תאריך טסט אחרון': formatDate(vehicle.mivchan_acharon_dt), 'מועד עלייה לכביש': formatDate(vehicle.moed_aliya_lakvish), },
+        'רישוי ובעלות': { 'תו חניה לנכה': formatBoolean(vehicle.has_disabled_permit), 'יבוא אישי': formatBoolean(vehicle.is_personal_import), 'סוג בעלות נוכחית': vehicle.baalut, 'הוראת רישום': vehicle.horaat_rishum, 'קבוצת אגרה': vehicle.kvuzat_agra_cd, 'תוקף רישיון (טסט)': formatDate(vehicle.tokef_dt), 'תאריך טסט אחרון': formatDate(vehicle.mivchan_acharon_dt), 'מועד עלייה לכביש': formatDate(vehicle.moed_aliya_lakvish), },
         'נתונים טכניים': { 'סוג מרכב': vehicle.merkav, 'סוג דלק': vehicle.sug_delek_nm || vehicle.delek_nm, 'נפח מנוע (סמ"ק)': vehicle.nefah_manoa, 'דגם מנוע': vehicle.degem_manoa, 'הספק מנוע (כ"ס)': vehicle.koah_sus, 'סוג הנעה': combinedHanaa, 'משקל כולל': vehicle.mishkal_kolel, 'מספר דלתות': vehicle.mispar_dlatot, 'מספר מקומות ישיבה': vehicle.mispar_moshavim, 'רמת זיהום אוויר': vehicle.kvutzat_zihum, 'מידות צמיגים': vehicle.zmig_ahori },
         'מערכות בטיחות': { 'כריות אוויר': vehicle.mispar_kariot_avir, 'מערכת ABS': formatBoolean(vehicle.abs_ind), 'בקרת יציבות': formatBoolean(vehicle.bakarat_yatzivut_ind), 'בקרת סטייה מנתיב': formatBoolean(vehicle.bakarat_stiya_menativ_ind), 'ניטור מרחק מלפנים': formatBoolean(vehicle.nitur_merhak_milfanim_ind), 'זיהוי בשטח "מת"': formatBoolean(vehicle.zihuy_beshetah_nistar_ind), 'זיהוי הולכי רגל': formatBoolean(vehicle.zihuy_holchey_regel_ind), 'מצלמת רוורס': formatBoolean(vehicle.matzlemat_reverse_ind), 'חיישני לחץ אוויר': formatBoolean(vehicle.hayshaney_lahatz_avir_batzmigim_ind) },
         'אבזור': { 'הגה כוח': formatBoolean(vehicle.hege_koah_ind), 'חלונות חשמל': vehicle.mispar_halonot_hashmal, 'חלון בגג': formatBoolean(vehicle.halon_bagg_ind), 'גלגלי סגסוגת קלה': formatBoolean(vehicle.galgaley_sagsoget_kala_ind), 'בקרת שיוט אדפטיבית': formatBoolean(vehicle.bakarat_shyut_adaptivit_ind) }
       };
+
       let groupsHtml = '';
-      for (const [title, details] of Object.entries(groups)) {
+      for (const [title, details] of Object.entries(displayResults.groups)) {
         let sectionHtml = '';
         for (const [label, val] of Object.entries(details)) {
-          if (val !== null && val !== undefined && val !== '' && val !== 'לא ידוע') {
+          if (val !== null && val !== undefined && val !== '') {
             sectionHtml += `<li><strong>${label}</strong><span>${val}</span></li>`;
           }
         }
@@ -243,36 +245,33 @@
     });
 
     document.getElementById('shareBtn').addEventListener('click', async () => {
-        let shareText = `פרטי רכב עבור מספר רישוי: ${currentPlate}\n\n`;
-        const vehicle = currentVehicleData;
-        if (!vehicle) return;
-        
-        for (const [title, details] of Object.entries(displayResults.groups)) {
-            shareText += `--- ${title} ---\n`;
-            for (const [label, val] of Object.entries(details)) {
-                if (val !== null && val !== undefined && val !== '' && val !== 'לא ידוע') {
-                   shareText += `${label}: ${val}\n`;
-                }
-            }
-            shareText += '\n';
-        }
+        const shareUrl = `${window.location.origin}${window.location.pathname}?search=${currentPlate}`;
+        const shareTitle = `פרטי רכב: ${currentPlate}`;
+        const shareText = `בדוק את פרטי הרכב עבור מספר רישוי ${currentPlate}`;
 
         if (navigator.share) {
             try {
-                await navigator.share({ title: `פרטי רכב: ${currentPlate}`, text: shareText });
-            } catch (err) { console.error('Error sharing:', err); }
+                await navigator.share({ title: shareTitle, text: shareText, url: shareUrl });
+            } catch (err) {}
         } else {
             try {
-                await navigator.clipboard.writeText(shareText);
+                await navigator.clipboard.writeText(shareUrl);
                 const shareBtn = document.getElementById('shareBtn');
-                shareBtn.innerHTML = '<i class="fas fa-check"></i> הועתק!';
+                shareBtn.innerHTML = '<i class="fas fa-check"></i> הקישור הועתק!';
                 setTimeout(() => { shareBtn.innerHTML = '<i class="fas fa-share-alt"></i> שיתוף'; }, 2000);
             } catch (err) { alert('שגיאה בהעתקה ללוח.'); }
         }
     });
-    // This assignment is to make the 'groups' object accessible to the share function
-    displayResults.groups = {};
-
+    
+    // Auto-search on page load if URL contains a search query
+    document.addEventListener('DOMContentLoaded', () => {
+        const params = new URLSearchParams(window.location.search);
+        const plateFromUrl = params.get('search');
+        if (plateFromUrl) {
+            plateInput.value = plateFromUrl;
+            searchVehicle();
+        }
+    });
   </script>
 </body>
 </html>
