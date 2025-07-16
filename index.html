@@ -185,7 +185,7 @@
       searchButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> מחפש...';
       resultsArea.innerHTML = '<div class="loader"></div>';
       actionButtons.classList.add('hidden');
-      const newUrl = `${window.location.origin}${window.location.pathname}?search=${currentPlate}`;
+      const newUrl = `${window.location.pathname}?search=${currentPlate}`;
       window.history.pushState({plate: currentPlate}, '', newUrl);
 
       try {
@@ -267,22 +267,48 @@
     });
 
     document.getElementById('shareBtn').addEventListener('click', async () => {
-        const shareUrl = `${window.location.origin}${window.location.pathname}?search=${currentPlate}`;
-        const shareTitle = `פרטי רכב: ${currentPlate}`;
-        const shareText = `בדוק את פרטי הרכב עבור מספר רישוי ${currentPlate}`;
+        const inIframe = window.self !== window.top;
+        const shareBtn = document.getElementById('shareBtn');
+        const originalText = shareBtn.innerHTML;
 
-        if (navigator.share) {
+        if (inIframe) {
+            let shareText = `פרטי רכב עבור מספר רישוי: ${currentPlate}\n\n`;
+            if (currentVehicleData) {
+                for (const [title, details] of Object.entries(displayResults.groups)) {
+                    let sectionHasContent = false;
+                    let sectionText = `--- ${title} ---\n`;
+                    for (const [label, val] of Object.entries(details)) {
+                        if (val !== null && val !== undefined && val !== '' && val !== 'לא קיים') {
+                           sectionText += `${label}: ${val}\n`;
+                           sectionHasContent = true;
+                        }
+                    }
+                    if (sectionHasContent) shareText += sectionText + '\n';
+                }
+            }
             try {
-                await navigator.share({ title: shareTitle, text: shareText, url: shareUrl });
-            } catch (err) {}
-        } else {
-            try {
-                await navigator.clipboard.writeText(shareUrl);
-                const shareBtn = document.getElementById('shareBtn');
-                shareBtn.innerHTML = '<i class="fas fa-check"></i> הקישור הועתק!';
-                setTimeout(() => { shareBtn.innerHTML = '<i class="fas fa-share-alt"></i> שיתוף'; }, 2000);
+                await navigator.clipboard.writeText(shareText);
+                shareBtn.innerHTML = '<i class="fas fa-check"></i> הפרטים הועתקו!';
             } catch (err) {
-                window.prompt("לא ניתן היה להעתיק אוטומטית. אנא העתק את הקישור:", shareUrl);
+                alert('שגיאה בהעתקת הפרטים.');
+            } finally {
+                setTimeout(() => { shareBtn.innerHTML = originalText; }, 2000);
+            }
+        } else {
+            const shareUrl = `${window.location.origin}${window.location.pathname}?search=${currentPlate}`;
+            const shareTitle = `פרטי רכב: ${currentPlate}`;
+            const shareText = `בדוק את פרטי הרכב עבור מספר רישוי ${currentPlate}`;
+
+            if (navigator.share) {
+                try { await navigator.share({ title: shareTitle, text: shareText, url: shareUrl }); } catch (err) {}
+            } else {
+                try {
+                    await navigator.clipboard.writeText(shareUrl);
+                    shareBtn.innerHTML = '<i class="fas fa-check"></i> הקישור הועתק!';
+                    setTimeout(() => { shareBtn.innerHTML = originalText; }, 2000);
+                } catch (err) {
+                    window.prompt("לא ניתן היה להעתיק אוטומטית. אנא העתק את הקישור:", shareUrl);
+                }
             }
         }
     });
