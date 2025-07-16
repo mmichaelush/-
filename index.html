@@ -74,7 +74,6 @@
     const FROZEN_VEHICLE_RESOURCE_ID = 'f6efe89a-fb3d-43a4-bb61-9bf12a9b9099';
     const INACTIVE_FROZEN_VEHICLE_RESOURCE_ID = '6f6acd03-f351-4a8f-8ecf-df792f4f573a';
     const PERSONAL_IMPORT_RESOURCE_ID = '03adc637-b6fe-402b-9937-7c3d3afc9140';
-    const LPG_VEHICLE_RESOURCE_ID = '56063a99-8a3e-4ff4-912e-5966c0279bad';
     const HAND_DATA_RESOURCE_ID = 'bb2355dc-9ec7-4f06-9c3f-3344672171da';
     
     const API_BASE_URL = 'https://data.gov.il/api/3/action/datastore_search';
@@ -151,9 +150,8 @@
         
         const permitPromise = fetchJsonpAsPromise(DISABLED_PERMIT_RESOURCE_ID, vehicleData.mispar_rechev.toString(), true);
         const handDataPromise = fetchJsonpAsPromise(HAND_DATA_RESOURCE_ID, { mispar_rechev: parseInt(vehicleData.mispar_rechev) }, false);
-        const lpgPromise = fetchJsonpAsPromise(LPG_VEHICLE_RESOURCE_ID, vehicleData.mispar_rechev.toString(), true);
         
-        const [modelResult, permitResult, handResult, lpgResult] = await Promise.allSettled([modelDetailsPromise, permitPromise, handDataPromise, lpgPromise]);
+        const [modelResult, permitResult, handResult] = await Promise.allSettled([modelDetailsPromise, permitPromise, handDataPromise]);
         
         let finalData = { ...vehicleData };
         if (modelResult.status === 'fulfilled' && modelResult.value) {
@@ -167,13 +165,6 @@
             if (sortedHandRecords.length > 1) {
                 finalData.baalut_rishonit = sortedHandRecords[sortedHandRecords.length - 1].baalut;
             }
-        }
-        if (lpgResult.status === 'fulfilled' && lpgResult.value.records.length > 0) {
-            const lpgData = lpgResult.value.records[0];
-            finalData = { ...finalData, ...lpgData };
-            finalData.is_lpg = lpgData.gapam_ind === 1;
-            finalData.color_changed = lpgData.shnui_zeva_ind === 1;
-            finalData.tires_changed = lpgData.shinui_zmig_ind === 1;
         }
         
         finalData.has_disabled_permit = (permitResult.status === 'fulfilled' && permitResult.value.records.length > 0);
@@ -243,9 +234,9 @@
       const combinedHanaa = Array.from(hanaaTypes).join(' / ');
 
       displayResults.groups = {
-        'פרטי רכב': { 'מספר רכב': vehicle.mispar_rechev, 'יצרן': vehicle.tozar || vehicle.tozeret_nm?.split('-')[0], 'ארץ יצור': vehicle.tozeret_eretz_nm, 'כינוי מסחרי': vehicle.kinuy_mishari, 'דגם יצרן': vehicle.degem_nm, 'רמת גימור': vehicle.ramat_gimur, 'שנת ייצור': vehicle.shnat_yitzur, 'תיבת הילוכים': (vehicle.automatic_ind === '1' || vehicle.automatic_ind === 1) ? 'אוטומטית' : 'ידנית', 'צבע': vehicle.tzeva_rechev, 'עבר שינוי צבע': formatBoolean(vehicle.color_changed), 'מספר שלדה': vehicle.misgeret, },
-        'רישוי ובעלות': { 'תו חניה לנכה': formatBoolean(vehicle.has_disabled_permit), 'יבוא אישי': formatBoolean(vehicle.is_personal_import), 'סוג בעלות ראשונה': vehicle.baalut_rishonit, 'סוג בעלות נוכחית': vehicle.baalut, 'מספר יד נוכחי': vehicle.mispar_yad_nochichit, 'תאריך בעלות נוכחית': formatDate(vehicle.baalut_dt), 'הוראת רישום': vehicle.horaat_rishum, 'קבוצת אגרה': vehicle.kvuzat_agra_cd, 'תוקף רישיון (טסט)': formatDate(vehicle.tokef_dt), 'תאריך טסט אחרון': formatDate(vehicle.mivchan_acharon_dt), 'מועד עלייה לכביש': formatDate(vehicle.moed_aliya_lakvish), },
-        'נתונים טכניים': { 'סוג מרכב': vehicle.merkav, 'סוג דלק': vehicle.sug_delek_nm || vehicle.delek_nm, 'נפח מנוע (סמ"ק)': vehicle.nefah_manoa, 'דגם מנוע': vehicle.degem_manoa, 'מספר מנוע': vehicle.mispar_manoa, 'הספק מנוע (כ"ס)': vehicle.koah_sus, 'סוג הנעה': combinedHanaa, 'משקל כולל': vehicle.mishkal_kolel, 'מספר דלתות': vehicle.mispar_dlatot, 'מספר מקומות ישיבה': vehicle.mispar_moshavim, 'רמת זיהום אוויר': vehicle.kvutzat_zihum, 'מידות צמיגים': vehicle.zmig_ahori, 'עבר שינוי מידות צמיגים': formatBoolean(vehicle.tires_changed) },
+        'פרטי רכב': { 'מספר רכב': vehicle.mispar_rechev, 'יצרן': vehicle.tozar || vehicle.tozeret_nm?.split('-')[0], 'ארץ יצור': vehicle.tozeret_eretz_nm, 'כינוי מסחרי': vehicle.kinuy_mishari, 'דגם יצרן': vehicle.degem_nm, 'רמת גימור': vehicle.ramat_gimur, 'שנת ייצור': vehicle.shnat_yitzur, 'תיבת הילוכים': (vehicle.automatic_ind === '1' || vehicle.automatic_ind === 1) ? 'אוטומטית' : 'ידנית', 'צבע': vehicle.tzeva_rechev },
+        'רישוי ובעלות': { 'תו חניה לנכה': formatBoolean(vehicle.has_disabled_permit), 'יבוא אישי': formatBoolean(vehicle.is_personal_import), 'בעלות ראשונה': vehicle.baalut_rishonit, 'סוג בעלות נוכחית': vehicle.baalut, 'מספר יד נוכחי': vehicle.mispar_yad_nochichit, 'תאריך בעלות נוכחית': formatDate(vehicle.baalut_dt), 'הוראת רישום': vehicle.horaat_rishum, 'קבוצת אגרה': vehicle.kvuzat_agra_cd, 'תוקף רישיון (טסט)': formatDate(vehicle.tokef_dt), 'תאריך טסט אחרון': formatDate(vehicle.mivchan_acharon_dt), 'מועד עלייה לכביש': formatDate(vehicle.moed_aliya_lakvish), },
+        'נתונים טכניים': { 'מספר שלדה': vehicle.misgeret, 'סוג מרכב': vehicle.merkav, 'סוג דלק': vehicle.sug_delek_nm || vehicle.delek_nm, 'נפח מנוע (סמ"ק)': vehicle.nefah_manoa, 'דגם מנוע': vehicle.degem_manoa, 'מספר מנוע': vehicle.mispar_manoa, 'הספק מנוע (כ"ס)': vehicle.koah_sus, 'סוג הנעה': combinedHanaa, 'משקל כולל': vehicle.mishkal_kolel, 'מספר דלתות': vehicle.mispar_dlatot, 'מספר מקומות ישיבה': vehicle.mispar_moshavim, 'רמת זיהום אוויר': vehicle.kvutzat_zihum, 'מידות צמיגים': vehicle.zmig_ahori },
         'מערכות בטיחות': { 'כריות אוויר': vehicle.mispar_kariot_avir, 'מערכת ABS': formatBoolean(vehicle.abs_ind), 'בקרת יציבות': formatBoolean(vehicle.bakarat_yatzivut_ind), 'בקרת סטייה מנתיב': formatBoolean(vehicle.bakarat_stiya_menativ_ind), 'ניטור מרחק מלפנים': formatBoolean(vehicle.nitur_merhak_milfanim_ind), 'זיהוי בשטח "מת"': formatBoolean(vehicle.zihuy_beshetah_nistar_ind), 'זיהוי הולכי רגל': formatBoolean(vehicle.zihuy_holchey_regel_ind), 'מצלמת רוורס': formatBoolean(vehicle.matzlemat_reverse_ind), 'חיישני לחץ אוויר': formatBoolean(vehicle.hayshaney_lahatz_avir_batzmigim_ind) },
         'אבזור': { 'הגה כוח': formatBoolean(vehicle.hege_koah_ind), 'חלונות חשמל': vehicle.mispar_halonot_hashmal, 'חלון בגג': formatBoolean(vehicle.halon_bagg_ind), 'גלגלי סגסוגת קלה': formatBoolean(vehicle.galgaley_sagsoget_kala_ind), 'בקרת שיוט אדפטיבית': formatBoolean(vehicle.bakarat_shyut_adaptivit_ind) }
       };
