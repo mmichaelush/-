@@ -11,7 +11,7 @@
     :root { --primary-blue: #3B82F6; --light-blue: #EFF6FF; --dark-blue: #1E3A8A; --text-gray: #6B7280; --border-color: #D1D5DB; }
     body { font-family: 'Heebo', sans-serif; background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%); margin: 0; padding: 20px; color: #333; }
     .container { max-width: 880px; margin: 40px auto; background-color: #ffffff; border-radius: 24px; padding: 40px 30px; box-shadow: 0 20px 40px -5px rgba(27, 100, 240, 0.15); border: 1px solid rgba(255, 255, 255, 0.5); }
-    .logo { max-width: 200px; margin: 0 auto 25px; display: block; }
+    .logo { max-width: 150px; margin: 0 auto 25px; display: block; color: var(--primary-blue); }
     h1 { text-align: center; margin-bottom: 8px; color: var(--dark-blue); font-size: 32px; font-weight: 700; }
     .description { text-align: center; color: var(--text-gray); margin-bottom: 35px; font-size: 18px; }
     .input-group { display: flex; flex-direction: column; gap: 14px; align-items: stretch; }
@@ -33,17 +33,29 @@
     li { display: flex; justify-content: space-between; padding: 14px 10px; border-bottom: 1px solid #f0f2f5; font-size: 16px; border-radius: 8px; transition: background-color 0.2s ease; }
     li:last-child { border-bottom: none; }
     li:hover { background-color: var(--light-blue); }
-    li strong { margin-left: 15px; color: #333; }
+    li strong { margin-left: 15px; color: #333; display: flex; align-items: center; }
+    li strong i { margin-left: 10px; color: var(--primary-blue); width: 22px; text-align: center; font-size: 18px; }
     li span { color: var(--text-gray); }
     .loader { border: 5px solid #E5E7EB; border-top: 5px solid var(--primary-blue); border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin: 40px auto; }
     @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-    @media print { body { padding: 0; margin: 0; } #main-content, #action-buttons, .loader { display: none !important; } .container { box-shadow: none !important; border: none !important; margin: 0 !important; padding: 0 !important; max-width: 100% !important; width: 100% !important; } .results-wrapper { display: block !important; } li { background-color: transparent !important; } }
+    .license-plate { display: flex; flex-direction: row-reverse; max-width: 400px; margin: 20px auto; border-radius: 8px; border: 4px solid #111; overflow: hidden; box-shadow: 0 4px 8px rgba(0,0,0,0.2); }
+    .plate-country { background-color: #0038a8; color: white; padding: 5px 12px; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+    .plate-country .flag { font-size: 20px; }
+    .plate-country .il { font-size: 22px; font-weight: bold; }
+    .plate-country .israel { font-size: 12px; }
+    .plate-number { flex-grow: 1; background: linear-gradient(to bottom, #fecb04, #fdb813); color: black; font-size: 40px; font-weight: 700; letter-spacing: 4px; display: flex; align-items: center; justify-content: center; text-shadow: 1px 1px 1px rgba(0,0,0,0.1); padding: 5px; }
+    footer { text-align: center; margin-top: 50px; padding-top: 20px; border-top: 1px solid var(--border-color); font-size: 14px; color: var(--text-gray); }
+    footer p { margin: 5px 0; }
+    footer a { color: var(--primary-blue); text-decoration: none; }
+    footer a:hover { text-decoration: underline; }
+    
+    @media print { body { padding: 0; margin: 0; } #main-content, #action-buttons, .loader, footer { display: none !important; } .container { box-shadow: none !important; border: none !important; margin: 0 !important; padding: 0 !important; max-width: 100% !important; width: 100% !important; } .results-wrapper { display: block !important; } li { background-color: transparent !important; } }
   </style>
 </head>
 <body>
   <div class="container">
     <div id="main-content">
-      <svg class="logo" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="color: var(--primary-blue);"><path d="M18.91 14.1C18.91 14.1 18.81 14.7 18.21 14.7C17.61 14.7 15.61 14.7 15.61 14.7M5.01002 14.1C5.01002 14.1 5.11002 14.7 5.71002 14.7C6.31002 14.7 8.31002 14.7 8.31002 14.7M15.61 14.7L8.31002 14.7M15.61 14.7C15.61 14.7 16.01 12.7 15.01 12.2C14.01 11.7 12.31 12.5 12.01 12.5C11.71 12.5 9.91002 11.7 8.91002 12.2C7.91002 12.7 8.31002 14.7 8.31002 14.7M17.91 9H6.01002C5.01002 9 5.01002 8.9 5.01002 8L5.31002 6.5C5.31002 6.5 5.71002 5 6.91002 5H17.01C18.21 5 18.61 6.5 18.61 6.5L18.91 8C18.91 8.9 18.91 9 17.91 9Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+      <svg class="logo" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"></path><polyline points="14 2 14 8 20 8"></polyline><circle cx="11.5" cy="14.5" r="2.5"></circle><path d="M13.25 16.25 15 18"></path></svg>
       <h1>בדיקת פרטי רכב לפי מספר רישוי</h1>
       <p class="description">הקלד מספר רכב ולחץ על חיפוש</p>
       <div class="input-group">
@@ -57,8 +69,14 @@
       <button class="action-btn" id="shareBtn"><i class="fas fa-share-alt"></i> שיתוף</button>
     </div>
     <div class="results-wrapper">
+      <div id="licensePlateDisplay" class="hidden"></div>
       <div class="results" id="resultsArea"></div>
     </div>
+    <footer>
+        <p>© 2025 MyOto. כל הזכויות שמורות.</p>
+        <p>עיצוב ופיתוח: <a href="https://github.com/mmichaelush" target="_blank">מיכאלוש</a> בסיוע AI</p>
+        <p>המידע נלקח ממאגרי המידע הממשלתיים הפתוחים ומוגש כשירות לציבור בלבד.</p>
+    </footer>
   </div>
 
   <script>
@@ -66,6 +84,7 @@
     const searchButton = document.getElementById("searchButton");
     const resultsArea = document.getElementById("resultsArea");
     const actionButtons = document.getElementById("action-buttons");
+    const licensePlateDisplay = document.getElementById("licensePlateDisplay");
 
     const VEHICLE_BY_PLATE_RESOURCE_ID = '053cea08-09bc-40ec-8f7a-156f0677aff3';
     const MODEL_DETAILS_RESOURCE_ID = '142afde2-6228-49f9-8a29-9b6c3a0cbe40';
@@ -74,8 +93,8 @@
     const FROZEN_VEHICLE_RESOURCE_ID = 'f6efe89a-fb3d-43a4-bb61-9bf12a9b9099';
     const INACTIVE_FROZEN_VEHICLE_RESOURCE_ID = '6f6acd03-f351-4a8f-8ecf-df792f4f573a';
     const PERSONAL_IMPORT_RESOURCE_ID = '03adc637-b6fe-402b-9937-7c3d3afc9140';
-    const LPG_VEHICLE_RESOURCE_ID = '56063a99-8a3e-4ff4-912e-5966c0279bad';
     const HAND_DATA_RESOURCE_ID = 'bb2355dc-9ec7-4f06-9c3f-3344672171da';
+    const LPG_VEHICLE_RESOURCE_ID = '56063a99-8a3e-4ff4-912e-5966c0279bad';
     
     const API_BASE_URL = 'https://data.gov.il/api/3/action/datastore_search';
 
@@ -100,12 +119,19 @@
     };
 
     const formatBoolean = (val) => (val === true || val === '1' || val === 1 ? 'כן' : 'לא');
+    
+    function formatPlateNumber(plate) {
+        if (plate.length === 7) return plate.replace(/(\d{2})(\d{3})(\d{2})/, '$1-$2-$3');
+        if (plate.length === 8) return plate.replace(/(\d{3})(\d{2})(\d{3})/, '$1-$2-$3');
+        return plate;
+    }
 
     plateInput.addEventListener("keydown", (e) => {
       if (e.key === "Enter") { e.preventDefault(); searchVehicle(); }
     });
 
     function fetchJsonpAsPromise(resourceId, queryParams, useQ = false) {
+        console.log(`[LOG] מבצע קריאת API למאגר ${resourceId} עם פרמטרים:`, queryParams);
         return new Promise((resolve, reject) => {
             const callbackName = 'jsonp_' + Date.now() + '_' + Math.floor(Math.random() * 100000);
             const params = new URLSearchParams({ resource_id: resourceId, callback: callbackName });
@@ -116,17 +142,24 @@
               params.append('filters', JSON.stringify(queryParams));
             }
             const url = `${API_BASE_URL}?${params.toString()}`;
+            console.log(`[DEBUG] כתובת ה-URL המלאה שנשלחת: ${url}`);
             window[callbackName] = (data) => {
                 document.body.removeChild(script);
                 delete window[callbackName];
-                if (data.success) resolve(data.result);
-                else reject(new Error('ה-API החזיר שגיאה.'));
+                if (data.success) {
+                    console.log(`[LOG] קריאה ל-${resourceId} הצליחה.`, data);
+                    resolve(data.result);
+                } else {
+                    console.error(`[LOG] קריאה ל-${resourceId} נכשלה (API).`, data);
+                    reject(new Error('ה-API החזיר שגיאה.'));
+                }
             };
             const script = document.createElement('script');
             script.src = url;
             script.onerror = () => {
                 document.body.removeChild(script);
                 delete window[callbackName];
+                console.error(`[LOG] שגיאת רשת בקריאה ל-${resourceId}.`);
                 reject(new Error('שגיאת רשת או תקשורת מול השרת.'));
             };
             document.body.appendChild(script);
@@ -155,6 +188,11 @@
         
         const [modelResult, permitResult, handResult, lpgResult] = await Promise.allSettled([modelDetailsPromise, permitPromise, handDataPromise, lpgPromise]);
         
+        console.log("[LOG] תוצאת בדיקת פרטים טכניים:", modelResult);
+        console.log("[LOG] תוצאת בדיקת תו נכה:", permitResult);
+        console.log("[LOG] תוצאת בדיקת פרטי יד ובעלות:", handResult);
+        console.log("[LOG] תוצאת בדיקת גפ\"מ ושינויים:", lpgResult);
+
         let finalData = { ...vehicleData };
         if (modelResult.status === 'fulfilled' && modelResult.value) {
             finalData = { ...finalData, ...modelResult.value };
@@ -163,7 +201,6 @@
         if (lpgResult.status === 'fulfilled' && lpgResult.value.records.length > 0) {
             const lpgData = lpgResult.value.records[0];
             finalData = { ...finalData, ...lpgData };
-            finalData.is_lpg = lpgData.gapam_ind === 1;
             finalData.color_changed = lpgData.shnui_zeva_ind === 1;
             finalData.tires_changed = lpgData.shinui_zmig_ind === 1;
         }
@@ -187,6 +224,7 @@
       if (!/^\d{5,8}$/.test(currentPlate)) {
         resultsArea.innerHTML = `<p style="color:red; text-align:center;">אנא הזן מספר רישוי תקני (5-8 ספרות).</p>`;
         actionButtons.classList.add('hidden');
+        licensePlateDisplay.classList.add('hidden');
         return;
       }
       
@@ -194,6 +232,7 @@
       searchButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> מחפש...';
       resultsArea.innerHTML = '<div class="loader"></div>';
       actionButtons.classList.add('hidden');
+      licensePlateDisplay.classList.add('hidden');
       const newUrl = `${window.location.origin}${window.location.pathname}?search=${currentPlate}`;
       window.history.pushState({plate: currentPlate}, '', newUrl);
 
@@ -242,20 +281,32 @@
       if (vehicle.hanaa_nm) hanaaTypes.add(vehicle.hanaa_nm);
       const combinedHanaa = Array.from(hanaaTypes).join(' / ');
 
+      licensePlateDisplay.innerHTML = `
+        <div class="license-plate">
+          <div class="plate-country">
+            <span class="flag">🇮🇱</span>
+            <span class="il">IL</span>
+            <span class="israel">ישראל</span>
+          </div>
+          <div class="plate-number">${formatPlateNumber(String(vehicle.mispar_rechev))}</div>
+        </div>
+      `;
+      licensePlateDisplay.classList.remove('hidden');
+      
       displayResults.groups = {
-        'פרטי רכב': { 'מספר רכב': vehicle.mispar_rechev, 'יצרן': vehicle.tozar || vehicle.tozeret_nm?.split('-')[0], 'ארץ יצור': vehicle.tozeret_eretz_nm, 'כינוי מסחרי': vehicle.kinuy_mishari, 'דגם יצרן': vehicle.degem_nm, 'רמת גימור': vehicle.ramat_gimur, 'שנת ייצור': vehicle.shnat_yitzur, 'תיבת הילוכים': (vehicle.automatic_ind === '1' || vehicle.automatic_ind === 1) ? 'אוטומטית' : 'ידנית', 'צבע': vehicle.tzeva_rechev, 'עבר שינוי צבע': formatBoolean(vehicle.color_changed) },
-        'רישוי ובעלות': { 'תו חניה לנכה': formatBoolean(vehicle.has_disabled_permit), 'יבוא אישי': formatBoolean(vehicle.is_personal_import), 'סוג בעלות ראשונה': vehicle.baalut_rishonit, 'סוג בעלות נוכחית': vehicle.baalut, 'מספר יד נוכחי': vehicle.mispar_yad_nochichit, 'תאריך בעלות נוכחית': formatDate(vehicle.baalut_dt), 'הוראת רישום': vehicle.horaat_rishum, 'קבוצת אגרה': vehicle.kvuzat_agra_cd, 'תוקף רישיון (טסט)': formatDate(vehicle.tokef_dt), 'תאריך טסט אחרון': formatDate(vehicle.mivchan_acharon_dt), 'מועד עלייה לכביש': formatDate(vehicle.moed_aliya_lakvish), },
-        'נתונים טכניים': { 'מספר שלדה': vehicle.misgeret, 'סוג מרכב': vehicle.merkav, 'סוג דלק': vehicle.sug_delek_nm || vehicle.delek_nm, 'נפח מנוע (סמ"ק)': vehicle.nefah_manoa, 'דגם מנוע': vehicle.degem_manoa, 'מספר מנוע': vehicle.mispar_manoa, 'הספק מנוע (כ"ס)': vehicle.koah_sus, 'סוג הנעה': combinedHanaa, 'משקל כולל': vehicle.mishkal_kolel, 'מספר דלתות': vehicle.mispar_dlatot, 'מספר מקומות ישיבה': vehicle.mispar_moshavim, 'רמת זיהום אוויר': vehicle.kvutzat_zihum, 'מידות צמיגים': vehicle.zmig_ahori, 'עבר שינוי מידות צמיגים': formatBoolean(vehicle.tires_changed) },
-        'מערכות בטיחות': { 'כריות אוויר': vehicle.mispar_kariot_avir, 'מערכת ABS': formatBoolean(vehicle.abs_ind), 'בקרת יציבות': formatBoolean(vehicle.bakarat_yatzivut_ind), 'בקרת סטייה מנתיב': formatBoolean(vehicle.bakarat_stiya_menativ_ind), 'ניטור מרחק מלפנים': formatBoolean(vehicle.nitur_merhak_milfanim_ind), 'זיהוי בשטח "מת"': formatBoolean(vehicle.zihuy_beshetah_nistar_ind), 'זיהוי הולכי רגל': formatBoolean(vehicle.zihuy_holchey_regel_ind), 'מצלמת רוורס': formatBoolean(vehicle.matzlemat_reverse_ind), 'חיישני לחץ אוויר': formatBoolean(vehicle.hayshaney_lahatz_avir_batzmigim_ind) },
-        'אבזור': { 'הגה כוח': formatBoolean(vehicle.hege_koah_ind), 'חלונות חשמל': vehicle.mispar_halonot_hashmal, 'חלון בגג': formatBoolean(vehicle.halon_bagg_ind), 'גלגלי סגסוגת קלה': formatBoolean(vehicle.galgaley_sagsoget_kala_ind), 'בקרת שיוט אדפטיבית': formatBoolean(vehicle.bakarat_shyut_adaptivit_ind) }
+        'פרטי רכב': { 'יצרן': { value: vehicle.tozar || vehicle.tozeret_nm?.split('-')[0], icon: 'fas fa-industry' }, 'ארץ יצור': { value: vehicle.tozeret_eretz_nm, icon: 'fas fa-flag' }, 'כינוי מסחרי': { value: vehicle.kinuy_mishari, icon: 'fas fa-tag' }, 'דגם יצרן': { value: vehicle.degem_nm, icon: 'fas fa-barcode' }, 'רמת גימור': { value: vehicle.ramat_gimur, icon: 'fas fa-star' }, 'שנת ייצור': { value: vehicle.shnat_yitzur, icon: 'fas fa-calendar-alt' }, 'תיבת הילוכים': { value: (vehicle.automatic_ind === '1' || vehicle.automatic_ind === 1) ? 'אוטומטית' : 'ידנית', icon: 'fas fa-cogs' }, 'צבע': { value: vehicle.tzeva_rechev, icon: 'fas fa-palette' }, 'עבר שינוי צבע': { value: formatBoolean(vehicle.color_changed), icon: 'fas fa-brush' } },
+        'רישוי ובעלות': { 'תו חניה לנכה': { value: formatBoolean(vehicle.has_disabled_permit), icon: 'fab fa-accessible-icon' }, 'יבוא אישי': { value: formatBoolean(vehicle.is_personal_import), icon: 'fas fa-globe-americas' }, 'בעלות ראשונה': { value: vehicle.baalut_rishonit, icon: 'fas fa-user-check' }, 'סוג בעלות נוכחית': { value: vehicle.baalut, icon: 'fas fa-user-tag' }, 'מספר יד נוכחי': { value: vehicle.mispar_yad_nochichit, icon: 'fas fa-hand-holding' }, 'תאריך בעלות נוכחית': { value: formatDate(vehicle.baalut_dt), icon: 'fas fa-calendar-check' }, 'קבוצת אגרה': { value: vehicle.kvuzat_agra_cd, icon: 'fas fa-money-bill-wave' }, 'תוקף רישיון (טסט)': { value: formatDate(vehicle.tokef_dt), icon: 'fas fa-check-circle' }, 'תאריך טסט אחרון': { value: formatDate(vehicle.mivchan_acharon_dt), icon: 'fas fa-history' }, 'מועד עלייה לכביש': { value: formatDate(vehicle.moed_aliya_lakvish), icon: 'fas fa-road' }, },
+        'נתונים טכניים': { 'מספר שלדה': { value: vehicle.misgeret, icon: 'fas fa-fingerprint' }, 'סוג מרכב': { value: vehicle.merkav, icon: 'fas fa-car-side' }, 'סוג דלק': { value: vehicle.sug_delek_nm || vehicle.delek_nm, icon: 'fas fa-gas-pump' }, 'נפח מנוע (סמ"ק)': { value: vehicle.nefah_manoa, icon: 'fas fa-tachometer-alt' }, 'דגם מנוע': { value: vehicle.degem_manoa, icon: 'fas fa-cogs' }, 'מספר מנוע': { value: vehicle.mispar_manoa, icon: 'fas fa-barcode' }, 'הספק מנוע (כ"ס)': { value: vehicle.koah_sus, icon: 'fas fa-horse-head' }, 'סוג הנעה': { value: combinedHanaa, icon: 'fas fa-sitemap' }, 'משקל כולל': { value: vehicle.mishkal_kolel, icon: 'fas fa-weight-hanging' }, 'מספר דלתות': { value: vehicle.mispar_dlatot, icon: 'fas fa-door-open' }, 'מספר מקומות ישיבה': { value: vehicle.mispar_moshavim, icon: 'fas fa-chair' }, 'רמת זיהום אוויר': { value: vehicle.kvutzat_zihum, icon: 'fas fa-smog' }, 'מידות צמיגים': { value: vehicle.zmig_ahori, icon: 'fas fa-dot-circle' }, 'עבר שינוי מידות צמיגים': { value: formatBoolean(vehicle.tires_changed), icon: 'fas fa-ruler-combined' } },
+        'מערכות בטיחות': { 'כריות אוויר': { value: vehicle.mispar_kariot_avir, icon: 'fas fa-shield-halved' }, 'מערכת ABS': { value: formatBoolean(vehicle.abs_ind), icon: 'fas fa-exclamation-triangle' }, 'בקרת יציבות': { value: formatBoolean(vehicle.bakarat_yatzivut_ind), icon: 'fas fa-car-crash' }, 'בקרת סטייה מנתיב': { value: formatBoolean(vehicle.bakarat_stiya_menativ_ind), icon: 'fas fa-road-spikes' }, 'ניטור מרחק מלפנים': { value: formatBoolean(vehicle.nitur_merhak_milfanim_ind), icon: 'fas fa-shield-alt' }, 'זיהוי בשטח "מת"': { value: formatBoolean(vehicle.zihuy_beshetah_nistar_ind), icon: 'fas fa-eye-slash' }, 'זיהוי הולכי רגל': { value: formatBoolean(vehicle.zihuy_holchey_regel_ind), icon: 'fas fa-walking' }, 'מצלמת רוורס': { value: formatBoolean(vehicle.matzlemat_reverse_ind), icon: 'fas fa-video' }, 'חיישני לחץ אוויר': { value: formatBoolean(vehicle.hayshaney_lahatz_avir_batzmigim_ind), icon: 'fas fa-tire-pressure-warning' } },
+        'אבזור': { 'הגה כוח': { value: formatBoolean(vehicle.hege_koah_ind), icon: 'fas fa-steering-wheel' }, 'חלונות חשמל': { value: vehicle.mispar_halonot_hashmal, icon: 'fas fa-window-maximize' }, 'חלון בגג': { value: formatBoolean(vehicle.halon_bagg_ind), icon: 'fas fa-cloud-sun' }, 'גלגלי סגסוגת קלה': { value: formatBoolean(vehicle.galgaley_sagsoget_kala_ind), icon: 'far fa-circle' }, 'בקרת שיוט אדפטיבית': { value: formatBoolean(vehicle.bakarat_shyut_adaptivit_ind), icon: 'fas fa-tachometer-alt-fast' } }
       };
 
       let groupsHtml = '';
       for (const [title, details] of Object.entries(displayResults.groups)) {
         let sectionHtml = '';
-        for (const [label, val] of Object.entries(details)) {
-          if (val !== null && val !== undefined && val !== '' && val !== 'לא קיים' && val !== 'לא צוין') {
-            sectionHtml += `<li><strong>${label}</strong><span>${val}</span></li>`;
+        for (const [label, data] of Object.entries(details)) {
+          if (data.value !== null && data.value !== undefined && data.value !== '' && data.value !== 'לא קיים' && data.value !== 'לא צוין') {
+            sectionHtml += `<li><strong><i class="${data.icon}"></i>${label}</strong><span>${data.value}</span></li>`;
           }
         }
         if (sectionHtml) groupsHtml += `<div><h4 class="section-title">${title}</h4><ul>${sectionHtml}</ul></div>`;
