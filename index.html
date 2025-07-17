@@ -185,7 +185,7 @@
       searchButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> מחפש...';
       resultsArea.innerHTML = '<div class="loader"></div>';
       actionButtons.classList.add('hidden');
-      const newUrl = `${window.location.pathname}?search=${currentPlate}`;
+      const newUrl = `${window.location.origin}${window.location.pathname}?search=${currentPlate}`;
       window.history.pushState({plate: currentPlate}, '', newUrl);
 
       try {
@@ -234,9 +234,9 @@
       const combinedHanaa = Array.from(hanaaTypes).join(' / ');
 
       displayResults.groups = {
-        'פרטי רכב': { 'מספר רכב': vehicle.mispar_rechev, 'יצרן': vehicle.tozar || vehicle.tozeret_nm?.split('-')[0], 'ארץ יצור': vehicle.tozeret_eretz_nm, 'כינוי מסחרי': vehicle.kinuy_mishari, 'דגם יצרן': vehicle.degem_nm, 'רמת גימור': vehicle.ramat_gimur, 'שנת ייצור': vehicle.shnat_yitzur, 'תיבת הילוכים': (vehicle.automatic_ind === '1' || vehicle.automatic_ind === 1) ? 'אוטומטית' : 'ידנית', 'צבע': vehicle.tzeva_rechev },
+        'פרטי רכב': { 'מספר רכב': vehicle.mispar_rechev, 'יצרן': vehicle.tozar || vehicle.tozeret_nm?.split('-')[0], 'ארץ יצור': vehicle.tozeret_eretz_nm, 'כינוי מסחרי': vehicle.kinuy_mishari, 'דגם יצרן': vehicle.degem_nm, 'רמת גימור': vehicle.ramat_gimur, 'שנת ייצור': vehicle.shnat_yitzur, 'תיבת הילוכים': (vehicle.automatic_ind === '1' || vehicle.automatic_ind === 1) ? 'אוטומטית' : 'ידנית', 'צבע': vehicle.tzeva_rechev, },
         'רישוי ובעלות': { 'תו חניה לנכה': formatBoolean(vehicle.has_disabled_permit), 'יבוא אישי': formatBoolean(vehicle.is_personal_import), 'בעלות ראשונה': vehicle.baalut_rishonit, 'סוג בעלות נוכחית': vehicle.baalut, 'מספר יד נוכחי': vehicle.mispar_yad_nochichit, 'תאריך בעלות נוכחית': formatDate(vehicle.baalut_dt), 'הוראת רישום': vehicle.horaat_rishum, 'קבוצת אגרה': vehicle.kvuzat_agra_cd, 'תוקף רישיון (טסט)': formatDate(vehicle.tokef_dt), 'תאריך טסט אחרון': formatDate(vehicle.mivchan_acharon_dt), 'מועד עלייה לכביש': formatDate(vehicle.moed_aliya_lakvish), },
-        'נתונים טכניים': { 'מספר שלדה': vehicle.misgeret, 'סוג מרכב': vehicle.merkav, 'סוג דלק': vehicle.sug_delek_nm || vehicle.delek_nm, 'נפח מנוע (סמ"ק)': vehicle.nefah_manoa, 'דגם מנוע': vehicle.degem_manoa, 'מספר מנוע': vehicle.mispar_manoa, 'הספק מנוע (כ"ס)': vehicle.koah_sus, 'סוג הנעה': combinedHanaa, 'משקל כולל': vehicle.mishkal_kolel, 'מספר דלתות': vehicle.mispar_dlatot, 'מספר מקומות ישיבה': vehicle.mispar_moshavim, 'רמת זיהום אוויר': vehicle.kvutzat_zihum, 'מידות צמיגים': vehicle.zmig_ahori },
+        'נתונים טכניים': { 'מספר שלדה': vehicle.misgeret, 'סוג מרכב': vehicle.merkav, 'סוג דלק': vehicle.sug_delek_nm || vehicle.delek_nm, 'נפח מנוע (סמ"ק)': vehicle.nefah_manoa, 'דגם מנוע': vehicle.degem_manoa, 'הספק מנוע (כ"ס)': vehicle.koah_sus, 'סוג הנעה': combinedHanaa, 'משקל כולל': vehicle.mishkal_kolel, 'מספר דלתות': vehicle.mispar_dlatot, 'מספר מקומות ישיבה': vehicle.mispar_moshavim, 'רמת זיהום אוויר': vehicle.kvutzat_zihum, 'מידות צמיגים': vehicle.zmig_ahori },
         'מערכות בטיחות': { 'כריות אוויר': vehicle.mispar_kariot_avir, 'מערכת ABS': formatBoolean(vehicle.abs_ind), 'בקרת יציבות': formatBoolean(vehicle.bakarat_yatzivut_ind), 'בקרת סטייה מנתיב': formatBoolean(vehicle.bakarat_stiya_menativ_ind), 'ניטור מרחק מלפנים': formatBoolean(vehicle.nitur_merhak_milfanim_ind), 'זיהוי בשטח "מת"': formatBoolean(vehicle.zihuy_beshetah_nistar_ind), 'זיהוי הולכי רגל': formatBoolean(vehicle.zihuy_holchey_regel_ind), 'מצלמת רוורס': formatBoolean(vehicle.matzlemat_reverse_ind), 'חיישני לחץ אוויר': formatBoolean(vehicle.hayshaney_lahatz_avir_batzmigim_ind) },
         'אבזור': { 'הגה כוח': formatBoolean(vehicle.hege_koah_ind), 'חלונות חשמל': vehicle.mispar_halonot_hashmal, 'חלון בגג': formatBoolean(vehicle.halon_bagg_ind), 'גלגלי סגסוגת קלה': formatBoolean(vehicle.galgaley_sagsoget_kala_ind), 'בקרת שיוט אדפטיבית': formatBoolean(vehicle.bakarat_shyut_adaptivit_ind) }
       };
@@ -278,7 +278,7 @@
                     let sectionHasContent = false;
                     let sectionText = `--- ${title} ---\n`;
                     for (const [label, val] of Object.entries(details)) {
-                        if (val !== null && val !== undefined && val !== '' && val !== 'לא קיים') {
+                        if (val !== null && val !== undefined && val !== '' && val !== 'לא קיים' && val !== 'לא צוין') {
                            sectionText += `${label}: ${val}\n`;
                            sectionHasContent = true;
                         }
@@ -286,14 +286,8 @@
                     if (sectionHasContent) shareText += sectionText + '\n';
                 }
             }
-            try {
-                await navigator.clipboard.writeText(shareText);
-                shareBtn.innerHTML = '<i class="fas fa-check"></i> הפרטים הועתקו!';
-            } catch (err) {
-                alert('שגיאה בהעתקת הפרטים.');
-            } finally {
-                setTimeout(() => { shareBtn.innerHTML = originalText; }, 2000);
-            }
+            window.prompt("להעתקת הפרטים (Ctrl+C):", shareText);
+
         } else {
             const shareUrl = `${window.location.origin}${window.location.pathname}?search=${currentPlate}`;
             const shareTitle = `פרטי רכב: ${currentPlate}`;
@@ -307,7 +301,7 @@
                     shareBtn.innerHTML = '<i class="fas fa-check"></i> הקישור הועתק!';
                     setTimeout(() => { shareBtn.innerHTML = originalText; }, 2000);
                 } catch (err) {
-                    window.prompt("לא ניתן היה להעתיק אוטומטית. אנא העתק את הקישור:", shareUrl);
+                    window.prompt("להעתקת הקישור (Ctrl+C):", shareUrl);
                 }
             }
         }
