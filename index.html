@@ -86,7 +86,7 @@
     <p>עיצוב ופיתוח: <a href="https://github.com/mmichaelush" target="_blank">@מיכאלוש</a> בסיוע AI</p>
   </footer>
  
-   <script>
+  <script>
     // ===================================================================================
     // --- הגדרות כלליות ואלמנטים מה-HTML ---
     // ===================================================================================
@@ -589,8 +589,10 @@
     document.getElementById('printBtn').addEventListener('click', () => window.print());
     document.getElementById('downloadBtn').addEventListener('click', () => { html2canvas(document.querySelector(".results-wrapper"),{scrollY:-window.scrollY}).then(c=>{let l=document.createElement('a');l.download=`car-${currentPlate}.png`;l.href=c.toDataURL();l.click();});});
     document.getElementById('shareBtn').addEventListener('click', async () => { 
+        const isEmbedded = (window.self !== window.top);
         const url = `${CANONICAL_URL}?search=${currentPlate}`; 
-        if(navigator.share){
+
+        if(navigator.share && !isEmbedded){
             try { await navigator.share({title:`פרטי רכב: ${formatPlate(currentPlate)}`,url}) } catch(e){}
         } else {
             try {
