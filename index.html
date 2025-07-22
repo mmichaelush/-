@@ -85,7 +85,8 @@
     <p id="footer-year"></p>
     <p>עיצוב ופיתוח: <a href="https://github.com/mmichaelush" target="_blank">@מיכאלוש</a> בסיוע AI</p>
   </footer>
-      <script>
+ 
+   <script>
     // ===================================================================================
     // --- הגדרות כלליות ואלמנטים מה-HTML ---
     // ===================================================================================
@@ -99,6 +100,7 @@
     
     // הגדרות גלובליות
     const API_BASE_URL = 'https://data.gov.il/api/3/action/datastore_search'; // כתובת הבסיס של ה-API
+    const CANONICAL_URL = 'https://mmichaelush.github.io/MyOto/'; // הכתובת הרשמית של האתר לצורך שיתוף נכון מתוך הטמעות
     let currentPlate = ''; // משתנה שיחזיק את מספר הרישוי הנוכחי בחיפוש
     const DEBUG_MODE = true; // שנה ל-true כדי לראות לוגים מפורטים בקונסול הדפדפן
 
@@ -106,19 +108,12 @@
     // --- תצורת מאגרי המידע (DATA_SOURCES) ---
     // ===================================================================================
     // אובייקט מרכזי המגדיר את כל מאגרי המידע שאנו שואלים.
-    // כל מאגר מכיל:
-    // id: מזהה המאגר (resource_id)
-    // doc_id: מספר המאגר לפי התיעוד שלך, לצורך לוגים ברורים
-    // name: שם תיאורי בעברית
-    // type: סוג המאגר (primary, status, enrichment)
-    // searchField: שם השדה שלפיו נחפש (לרוב מספר רישוי)
-    // enrichmentChain: רשימת מאגרים נוספים שמהם נשאב מידע העשרה אם נמצאה התאמה במאגר זה
     const DATA_SOURCES = {
         // #1 - Primary: Private & Commercial Cars
-        private_cars_1: { id: '053cea08-09bc-40ec-8f7a-156f0677aff3', doc_id: '#1', name: 'רכב פרטי ומסחרי 1', type: 'primary', searchField: 'mispar_rechev', enrichmentChain: ['private_cars_2', 'history_1', 'history_2', 'modelDetails', 'modelCounts', 'importers', 'recall', 'disabledPermit', 'safetyDiscount', 'filters'] },
+        private_cars_1: { id: '053cea08-09bc-40ec-8f7a-156f0677aff3', doc_id: '#1', name: 'רכב פרטי ומסחרי 1', type: 'primary', searchField: 'mispar_rechev', enrichmentChain: ['private_cars_2', 'modelDetails', 'modelCounts', 'importers'] },
         private_cars_2: { id: '0866573c-40cd-4ca8-91d2-9dd2d7a492e5', doc_id: '#1', name: 'רכב פרטי ומסחרי 2', type: 'enrichment', searchField: 'mispar_rechev' },
         // #2 - Primary: Personal Import Cars
-        personalImport: { id: '03adc637-b6fe-402b-9937-7c3d3afc9140', doc_id: '#2', name: 'יבוא אישי', type: 'primary', searchField: 'mispar_rechev', enrichmentChain: ['history_1', 'history_2', 'modelDetails', 'modelCounts', 'importers', 'recall', 'disabledPermit', 'safetyDiscount', 'filters'] },
+        personalImport: { id: '03adc637-b6fe-402b-9937-7c3d3afc9140', doc_id: '#2', name: 'יבוא אישי', type: 'primary', searchField: 'mispar_rechev', enrichmentChain: ['modelDetails', 'modelCounts', 'importers'] },
         // #3 - Status: Off-Road Vehicles (Grouped)
         offRoad_1: { id: '851ecab1-0622-4dbe-a6c7-f950cf82abf9', doc_id: '#3', name: 'ירד מהכביש 1', type: 'status_group', searchField: 'mispar_rechev', msg: 'הרכב הורד מהכביש', enrichmentChain: ['modelDetails'] },
         offRoad_2: { id: 'ec8cbc34-72e1-4b69-9c48-22821ba0bd6c', doc_id: '#3', name: 'ירד מהכביש 2', type: 'status_group', searchField: 'mispar_rechev', msg: 'הרכב הורד מהכביש', enrichmentChain: [] },
@@ -128,13 +123,13 @@
         // #5 - Status: Inactive (Frozen) without Model
         frozen_no_model: { id: '6f6acd03-f351-4a8f-8ecf-df792f4f573a', doc_id: '#5', name: 'מוקפא (ללא דגם)', type: 'status', searchField: 'mispar_rechev', msg: 'רישיון הרכב אינו בתוקף (מוקפא)', enrichmentChain: ['modelDetails'] },
         // #6 - Primary: Heavy Vehicles
-        heavy: { id: 'cd3acc5c-03c3-4c89-9c54-d40f93c0d790', doc_id: '#6', name: 'רכב כבד', type: 'primary', searchField: 'mispar_rechev', enrichmentChain: ['cme', 'publicTransport', 'filters', 'safetyDiscount'] },
+        heavy: { id: 'cd3acc5c-03c3-4c89-9c54-d40f93c0d790', doc_id: '#6', name: 'רכב כבד', type: 'primary', searchField: 'mispar_rechev', enrichmentChain: ['cme', 'publicTransport'] },
         // #7 - Primary: Engineering Equipment (CME)
-        cme: { id: '58dc4654-16b1-42ed-8170-98fadec153ea', doc_id: '#7', name: 'צמ"ה', type: 'primary', searchField: 'mispar_tzama', dataType: 'number', enrichmentChain: ['filters', 'safetyDiscount'] },
+        cme: { id: '58dc4654-16b1-42ed-8170-98fadec153ea', doc_id: '#7', name: 'צמ"ה', type: 'primary', searchField: 'mispar_tzama', dataType: 'number', enrichmentChain: [] },
         // #8 - Primary: Two-Wheeled Vehicles
-        twoWheeled: { id: 'bf9df4e2-d90d-4c0a-a400-19e15af8e95f', doc_id: '#8', name: 'דו-גלגלי', type: 'primary', searchField: 'mispar_rechev', enrichmentChain: ['filters', 'safetyDiscount'] },
+        twoWheeled: { id: 'bf9df4e2-d90d-4c0a-a400-19e15af8e95f', doc_id: '#8', name: 'דו-גלגלי', type: 'primary', searchField: 'mispar_rechev', enrichmentChain: [] },
         // #9 - Primary: Public Transport
-        publicTransport: { id: 'cf29862d-ca25-4691-84f6-1be60dcb4a1e', doc_id: '#9', name: 'תחבורה ציבורית', type: 'primary', searchField: 'mispar_rechev', enrichmentChain: ['modelDetails', 'filters', 'safetyDiscount', 'busFleet'] },
+        publicTransport: { id: 'cf29862d-ca25-4691-84f6-1be60dcb4a1e', doc_id: '#9', name: 'תחבורה ציבורית', type: 'primary', searchField: 'mispar_rechev', enrichmentChain: ['modelDetails', 'busFleet'] },
         // #10 - Enrichment: Vehicle History
         history_1: { id: '56063a99-8a3e-4ff4-912e-5966c0279bad', doc_id: '#10', name: 'היסטוריית רכב 1', type: 'enrichment', searchField: 'mispar_rechev' },
         history_2: { id: 'bb2355dc-9ec7-4f06-9c3f-3344672171da', doc_id: '#10', name: 'היסטוריית בעלויות', type: 'enrichment', searchField: 'mispar_rechev', dataType: 'number', isArray: true },
@@ -155,8 +150,11 @@
         busFleet: { id: '91d298ed-a260-4f93-9d50-d5e3c5b82ce1', doc_id: '#17', name: 'ציי אוטובוסים', type: 'enrichment', searchField: 'bus_license_id' },
     };
     
-    // סדר העדיפות של החיפוש הראשוני. המערכת תעבור על המאגרים לפי סדר זה ותעצור בראשון שתמצא בו התאמה.
+    // סדר העדיפות של החיפוש הראשוני.
     const DISCOVERY_PRIORITY = ['private_cars_1', 'personalImport', 'offRoad_group', 'heavy', 'cme', 'twoWheeled', 'publicTransport', 'frozen_with_model', 'frozen_no_model'];
+
+    // רשימת העשרות שרלוונטית לכל רכב עם מספר רישוי סטנדרטי.
+    const UNIVERSAL_ENRICHMENT_CHAIN = ['history_1', 'history_2', 'recall', 'disabledPermit', 'safetyDiscount', 'filters'];
 
     // ===================================================================================
     // --- פונקציות עזר (Formatting Helpers) ---
@@ -169,12 +167,6 @@
     // --- ליבת המערכת: שליפת נתונים וחיפוש ---
     // ===================================================================================
 
-    /**
-     * פונקציה גנרית לשליפת נתונים ממאגר ספציפי באמצעות טכניקת JSONP.
-     * @param {string} key - המפתח של המאגר באובייקט DATA_SOURCES.
-     * @param {string|number|object} query - שאילתת החיפוש.
-     * @returns {Promise} - מחזיר הבטחה שבסיומה יתקבלו הנתונים או שגיאה.
-     */
     function fetchData(key, query) {
         return new Promise((resolve, reject) => {
             const source = DATA_SOURCES[key];
@@ -220,28 +212,16 @@
         });
     }
 
-    /**
-     * פונקציית עזר לחיפוש ממוקד בקבוצת המאגרים של "רכב שירד מהכביש".
-     * @param {string} plateToSearch - מספר הרישוי לחיפוש.
-     * @returns {Promise|null} - מחזיר את התוצאה הראשונה שתמצא, או null אם לא נמצא בכלל.
-     */
     const findInOffRoadGroup = async (plateToSearch) => {
         if (DEBUG_MODE) console.log(`%c[חיפוש ממוקד] בודק במאגרי 'ירד מהכביש' [#3] עם מספר: ${plateToSearch}`, 'color: purple; font-weight: bold;');
         try {
-            const offRoadPromises = [
-                fetchData('offRoad_1', plateToSearch),
-                fetchData('offRoad_2', plateToSearch),
-                fetchData('offRoad_3', plateToSearch)
-            ];
+            const offRoadPromises = [fetchData('offRoad_1', plateToSearch), fetchData('offRoad_2', plateToSearch), fetchData('offRoad_3', plateToSearch)];
             return await Promise.any(offRoadPromises);
         } catch (e) {
             return null;
         }
     };
     
-    /**
-     * הפונקציה הראשית שמתחילה את תהליך החיפוש.
-     */
     async function searchVehicle() {
         const initialPlate = plateInput.value.trim().replace(/-/g, '');
         if (!/^\d{4,8}$/.test(initialPlate)) {
@@ -249,7 +229,6 @@
             return;
         }
         
-        // איפוס הממשק לפני כל חיפוש
         searchButton.disabled = true;
         searchButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> מחפש...';
         resultsArea.innerHTML = '<div class="loader"></div>';
@@ -257,7 +236,6 @@
         licensePlateDisplay.classList.add('hidden');
         window.history.pushState({ plate: initialPlate }, '', `${window.location.pathname}?search=${initialPlate}`);
 
-        // פונקציה פנימית המבצעת סבב חיפוש אחד
         const findVehicle = async (plateToSearch) => {
             currentPlate = plateToSearch;
             let winner = null;
@@ -272,24 +250,21 @@
                         if (DEBUG_MODE) console.log(`%c[מציאה!] נמצאה התאמה במאגר הראשי: ${DATA_SOURCES[winner.sourceKey].name} עבור מספר ${plateToSearch}`, 'background: #28a745; color: white; padding: 2px 5px; border-radius: 3px;');
                         return winner;
                     }
-                } catch (e) { /* המשך למאגר הבא */ }
+                } catch (e) { /* Continue */ }
             }
             return null;
         };
         
-        // שלב 1: חיפוש רגיל עם המספר המקורי
         let winner = await findVehicle(initialPlate);
 
-        // שלב 2: אם לא נמצא, והמספר קצר מ-8 ספרות, נסה חיפוש ממוקד במאגרי "ירד מהכביש" עם ריפוד אפסים
         if (!winner && initialPlate.length < 8) {
             const paddedPlate = initialPlate.padStart(8, '0');
             winner = await findInOffRoadGroup(paddedPlate);
             if (winner) {
-                currentPlate = paddedPlate; // עדכון המספר הגלובלי למספר המרופד שהצליח
+                currentPlate = paddedPlate;
             }
         }
         
-        // עיבוד התוצאות
         if (winner) {
             const source = DATA_SOURCES[winner.sourceKey];
             let statusMessage = '';
@@ -309,10 +284,6 @@
         searchButton.innerHTML = '<i class="fas fa-search"></i> חיפוש';
     }
 
-    /**
-     * פונקציה המקבלת את הנתונים הבסיסיים ומעשירה אותם ממאגרים נוספים.
-     * הלוגיקה פועלת בשני שלבים כדי לתמוך במקרה של רכב כבד (#6) שדורש העשרה גם ממאגרים ראשיים אחרים (#7, #9).
-     */
     async function enrichAndDisplay(baseData, sourceKey, statusMessage = '') {
         let finalData = { ...baseData };
         
@@ -339,12 +310,12 @@
             return (await Promise.all(promises)).filter(Boolean);
         };
 
-        // שלב 1: העשרה ראשונית לפי המאגר הראשי שנמצא
-        const initialChain = DATA_SOURCES[sourceKey]?.enrichmentChain || [];
-        if (DEBUG_MODE) console.log(`%c[העשרת מידע - שלב 1] מתחיל שרשרת עבור ${sourceKey}: ${initialChain.join(', ')}`, 'color: #fd7e14; font-weight: bold;');
-        const stage1Results = await runEnrichmentStage(finalData, initialChain);
+        const specificChain = DATA_SOURCES[sourceKey]?.enrichmentChain || [];
+        const fullChain = [...new Set([...specificChain, ...UNIVERSAL_ENRICHMENT_CHAIN])];
+        
+        if (DEBUG_MODE) console.log(`%c[העשרת מידע - שלב 1] מתחיל שרשרת מאוחדת: ${fullChain.join(', ')}`, 'color: #fd7e14; font-weight: bold;');
+        const stage1Results = await runEnrichmentStage(finalData, fullChain);
 
-        // איחוד תוצאות שלב 1 וזיהוי שרשראות העשרה נוספות
         let newChainsToRun = new Set();
         for (const res of stage1Results) {
             if (DATA_SOURCES[res.sourceKey]?.isArray) {
@@ -353,13 +324,12 @@
                 finalData = { ...finalData, ...res.records[0] };
             }
             const fulfilledSourceDef = DATA_SOURCES[res.sourceKey];
-            if (fulfilledSourceDef?.type === 'primary' && fulfilledSourceDef.enrichmentChain) {
+            if ((fulfilledSourceDef?.type === 'primary' || fulfilledSourceDef?.type === 'enrichment') && fulfilledSourceDef.enrichmentChain) {
                 fulfilledSourceDef.enrichmentChain.forEach(key => newChainsToRun.add(key));
             }
         }
 
-        // שלב 2: העשרת עומק מהשרשראות החדשות שזוהו
-        const finalChain = Array.from(newChainsToRun).filter(key => !initialChain.includes(key));
+        const finalChain = Array.from(newChainsToRun).filter(key => !fullChain.includes(key));
         if (finalChain.length > 0) {
             if (DEBUG_MODE) console.log(`%c[העשרת מידע - שלב 2] נוספו שרשראות העשרה: ${finalChain.join(', ')}`, 'color: #9d33ff; font-weight: bold;');
             const stage2Results = await runEnrichmentStage(finalData, finalChain);
@@ -378,24 +348,16 @@
     // ===================================================================================
     // --- מערך הגדרות תצוגה (FIELD_LABELS) ---
     // ===================================================================================
-    // מגדיר כיצד כל שדה מה-API יוצג למשתמש:
-    // l: תווית בעברית
-    // i: אייקון של Font Awesome
-    // c: קטגוריה שאליה השדה שייך
-    // f: פונקציית עיצוב (אופציונלי) - date, bool, number, currency
-    // t: סוג תצוגה מיוחד (אופציונלי) - bar, count
     const FIELD_LABELS = {
       // General & Identification (כללי וזיהוי)
       'tozeret_nm': { l: 'יצרן', i: 'fas fa-industry', c: 'כללי וזיהוי' },
       'kinuy_mishari': { l: 'כינוי מסחרי', i: 'fas fa-tag', c: 'כללי וזיהוי' },
       'degem_nm': { l: 'דגם', i: 'fas fa-barcode', c: 'כללי וזיהוי' },
-      'ramat_gimur': { l: 'רמת גימור', i: 'fas fa-star', c: 'כללי וזיהוי' },
       'sug_rechev_nm': { l: 'סוג רכב', i: 'fas fa-car', c: 'כללי וזיהוי' },
       'shnat_yitzur': { l: 'שנת ייצור', i: 'fas fa-calendar-alt', c: 'כללי וזיהוי' },
       'tzeva_rechev': { l: 'צבע', i: 'fas fa-palette', c: 'כללי וזיהוי' },
       'sug_yevu': { l: 'סוג יבוא', i: 'fas fa-globe-americas', c: 'כללי וזיהוי' },
       'shem_yevuan': { l: 'שם יבואן', i: 'fas fa-building', c: 'כללי וזיהוי' },
-      'mehir': { l: 'מחיר יבואן', i: 'fas fa-shekel-sign', c: 'כללי וזיהוי', f: 'currency' },
       'tozeret_eretz_nm': { l: 'ארץ ייצור', i: 'fas fa-flag', c: 'כללי וזיהוי' },
       'production_country': { l: 'ארץ ייצור', i: 'fas fa-flag', c: 'כללי וזיהוי' },
       'mispar_rechavim_pailim': { l: 'סה"כ מהדגם', i: 'fas fa-car-side', c: 'כללי וזיהוי', t: 'count' },
@@ -403,8 +365,11 @@
       'misgeret': { l: 'מספר שלדה', i: 'fas fa-fingerprint', c: 'כללי וזיהוי' },
       'mispar_shilda': { l: 'מספר שלדה', i: 'fas fa-fingerprint', c: 'כללי וזיהוי' },
       'shilda': { l: 'מספר שלדה', i: 'fas fa-fingerprint', c: 'כללי וזיהוי' },
+      'sug_tkina_nm': { l: 'סוג תקינה', i: 'fas fa-stamp', c: 'כללי וזיהוי' },
       'tkina_EU': { l: 'תקינת EU', i: 'fab fa-first-order', c: 'כללי וזיהוי' },
       'sug_rechev_EU_cd': { l: 'תקינת EU', i: 'fab fa-first-order', c: 'כללי וזיהוי' },
+      'mkoriut_nm': { l: 'מקוריות', i: 'fas fa-file-signature', c: 'כללי וזיהוי' },
+      'mehir': { l: 'מחיר יבואן', i: 'fas fa-shekel-sign', c: 'כללי וזיהוי', f: 'currency' },
 
       // License & Ownership (רישוי ובעלות)
       'moed_aliya_lakvish': { l: 'עליה לכביש', i: 'fas fa-road', c: 'רישוי ובעלות', f: 'date' },
@@ -416,67 +381,96 @@
       'kilometer_test_aharon': { l: 'ק"מ בטסט אחרון', i: 'fas fa-tachometer-alt', c: 'רישוי ובעלות', f: 'number' },
       'total_kilometer': { l: 'קילומטראז\' כולל', i: 'fas fa-road-circle-check', c: 'רישוי ובעלות', f: 'number'},
       'kvuzat_agra_cd': { l: 'קבוצת אגרה', i: 'fas fa-dollar-sign', c: 'רישוי ובעלות' },
+      'bitul_nm': { l: 'סטטוס ביטול', i: 'fas fa-file-excel', c: 'רישוי ובעלות' },
+      'tokef_date': { l: 'תוקף רישוי (צמ"ה)', i: 'fas fa-check-circle', c: 'רישוי ובעלות', f: 'date' },
       'shinui_mivne_ind': { l: 'עבר שינוי מבנה', i: 'fas fa-tools', c: 'רישוי ובעלות', f: 'bool' },
       'shnui_zeva_ind': { l: 'עבר שינוי צבע', i: 'fas fa-spray-can', c: 'רישוי ובעלות', f: 'bool' },
       'shinui_zmig_ind': { l: 'עבר שינוי צמיגים', i: 'fas fa-ruler-combined', c: 'רישוי ובעלות', f: 'bool' },
-      'bitul_nm': { l: 'סטטוס ביטול', i: 'fas fa-file-excel', c: 'רישוי ובעלות' },
-      'tokef_date': { l: 'תוקף רישוי (צמ"ה)', i: 'fas fa-check-circle', c: 'רישוי ובעלות', f: 'date' },
-
+      
       // Engine & Powertrain (מנוע והנעה)
-      'sug_delek_nm': { l: 'סוג דלק', i: 'fas fa-gas-pump', c: 'מנוע והנעה' },
-      'PropulsionType_nm': { l: 'סוג הנעה', i: 'fas fa-charging-station', c: 'מנוע והנעה' },
+      'tozar_manoa': { l: 'יצרן מנוע', i: 'fas fa-industry', c: 'מנוע והנעה' },
+      'degem_manoa': { l: 'דגם מנוע', i: 'fas fa-cog', c: 'מנוע והנעה' },
+      'mispar_manoa': { l: 'מספר מנוע', i: 'fas fa-hashtag', c: 'מנוע והנעה' },
       'nefach_manoa': { l: 'נפח מנוע (סמ"ק)', i: 'fas fa-cogs', c: 'מנוע והנעה', f: 'number' },
       'koah_sus': { l: 'הספק (כ"ס)', i: 'fas fa-horse-head', c: 'מנוע והנעה' },
       'hespek': { l: 'הספק (כ"ס)', i: 'fas fa-horse-head', c: 'מנוע והנעה' },
-      'degem_manoa': { l: 'דגם מנוע', i: 'fas fa-cog', c: 'מנוע והנעה' },
-      'mispar_manoa': { l: 'מספר מנוע', i: 'fas fa-hashtag', c: 'מנוע והנעה' },
+      'sug_delek_nm': { l: 'סוג דלק', i: 'fas fa-gas-pump', c: 'מנוע והנעה' },
+      'PropulsionType_nm': { l: 'סוג הנעה', i: 'fas fa-charging-station', c: 'מנוע והנעה' },
       'hanaa_nm': { l: 'הנעה', i: 'fas fa-car-side', c: 'מנוע והנעה' },
       'automatic_ind': { l: 'גיר אוטומטי', i: 'fas fa-cogs', c: 'מנוע והנעה', f: 'bool' },
+      'gapam_ind': { l: 'הסבה לגפ"מ', i: 'fas fa-gas-pump', c: 'מנוע והנעה', f: 'bool' },
       
       // Dimensions & Weights (מידות ומשקלים)
       'mishkal_kolel': { l: 'משקל כולל (ק"ג)', i: 'fas fa-weight-hanging', c: 'מידות ומשקלים', f: 'number' },
       'mishkal_azmi': { l: 'משקל עצמי (ק"ג)', i: 'fas fa-weight', c: 'מידות ומשקלים', f: 'number' },
-      'mispar_moshavim': { l: 'מספר מושבים', i: 'fas fa-chair', c: 'מידות ומשקלים' },
-      'SeatsNum': { l: 'מספר מושבים', i: 'fas fa-chair', c: 'מידות ומשקלים' },
-      'zmig_kidmi': { l: 'צמיג קדמי', i: 'fas fa-dot-circle', c: 'מידות ומשקלים' },
-      'zmig_ahori': { l: 'צמיג אחורי', i: 'fas fa-dot-circle', c: 'מידות ומשקלים' },
-      'mida_zmig_kidmi': { l: 'מידת צמיג קדמי', i: 'fas fa-dot-circle', c: 'מידות ומשקלים' },
-      'mida_zmig_ahori': { l: 'מידת צמיג אחורי', i: 'fas fa-dot-circle', c: 'מידות ומשקלים' },
       'merkav': { l: 'מרכב', i: 'fas fa-car-side', c: 'מידות ומשקלים' },
       'mispar_dlatot': { l: 'מספר דלתות', i: 'fas fa-door-open', c: 'מידות ומשקלים' },
-      'kosher_grira_im_blamim': {l: 'כושר גרירה (עם בלמים)', i:'fas fa-trailer', c: 'מידות ומשקלים', f:'number'},
       'gova': {l: 'גובה (מ"מ)', i:'fas fa-ruler-vertical', c: 'מידות ומשקלים', f:'number'},
-      
-      // Public Transport & Fleet
+      'mispar_moshavim': { l: 'מספר מושבים', i: 'fas fa-chair', c: 'מידות ומשקלים' },
+      'SeatsNum': { l: 'מספר מושבים', i: 'fas fa-chair', c: 'מידות ומשקלים' },
+      'argaz_ind': { l: 'ארגז', i: 'fas fa-box', c: 'מידות ומשקלים', f: 'bool' },
+
+      // Tires & Rims (צמיגים וחישוקים)
+      'galgaley_sagsoget_kala_ind': {l: "חישוקי סגסוגת קלה (ג'אנט מגנזיום)", i: 'fas fa-compact-disc', c: 'צמיגים וחישוקים', f: 'bool'},
+      'zmig_kidmi': { l: 'צמיג קדמי', i: 'fas fa-dot-circle', c: 'צמיגים וחישוקים' },
+      'zmig_ahori': { l: 'צמיג אחורי', i: 'fas fa-dot-circle', c: 'צמיגים וחישוקים' },
+      'kod_omes_tzmig_kidmi': { l: 'קוד עומס (קדמי)', i: 'fas fa-weight-scale', c: 'צמיגים וחישוקים' },
+      'kod_omes_tzmig_ahori': { l: 'קוד עומס (אחורי)', i: 'fas fa-weight-scale', c: 'צמיגים וחישוקים' },
+      'kod_mehirut_tzmig_kidmi': { l: 'קוד מהירות (קדמי)', i: 'fas fa-gauge-high', c: 'צמיגים וחישוקים' },
+      'kod_mehirut_tzmig_ahori': { l: 'קוד מהירות (אחורי)', i: 'fas fa-gauge-high', c: 'צמיגים וחישוקים' },
+
+      // CME & Heavy Vehicles (נתוני צמ"ה ורכב כבד)
+      'sug_tzama_nm': { l: 'סוג צמ"ה', i: 'fas fa-tractor', c: 'נתוני צמ"ה ורכב כבד' },
+      'shilda_totzar_en_nm': { l: 'יצרן שלדה (צמ"ה)', i: 'fas fa-industry', c: 'נתוני צמ"ה ורכב כבד' },
+      'mishkal_ton': { l: 'משקל (טון)', i: 'fas fa-weight-hanging', c: 'נתוני צמ"ה ורכב כבד' },
+      'kosher_harama_ton': { l: 'כושר הרמה (טון)', i: 'fas fa-balance-scale-right', c: 'נתוני צמ"ה ורכב כבד' },
+      'hagbala_nm_1': {l:'הגבלה 1', i:'fas fa-exclamation-triangle', c:'נתוני צמ"ה ורכב כבד'},
+      'hagbala_nm_2': {l:'הגבלה 2', i:'fas fa-exclamation-triangle', c:'נתוני צמ"ה ורכב כבד'},
+
+      // Public Transport & Fleet (תחבורה ציבורית וצי רכב)
       'operator_nm': { l: 'מפעיל', i: 'fas fa-bus-alt', c: 'תחבורה ציבורית וצי רכב' },
       'cluster_nm': { l: 'אשכול שירות', i: 'fas fa-sitemap', c: 'תחבורה ציבורית וצי רכב' },
       'BusSize_nm': {l:'גודל אוטובוס', i:'fas fa-bus', c:'תחבורה ציבורית וצי רכב'},
       'BusType_nm': {l:'סוג אוטובוס', i:'fas fa-bus-alt', c:'תחבורה ציבורית וצי רכב'},
       'mispar_mekomot_leyd_nahag': { l: 'מושבים ליד הנהג', i: 'fas fa-user-friends', c: 'תחבורה ציבורית וצי רכב' },
+      
+      // Passive Safety (בטיחות פסיבית)
+      'ramat_eivzur_betihuty': { l: 'רמת בטיחות', i: 'fas fa-shield-alt', c: 'בטיחות פסיבית' , t: 'bar', max: 8 },
+      'mispar_kariot_avir': { l: 'כריות אוויר', i: 'fas fa-air-freshener', c: 'בטיחות פסיבית' },
+      'abs_ind': { l: 'ABS', i: 'fas fa-car-burst', c: 'בטיחות פסיבית', f: 'bool' },
+      'bakarat_yatzivut_ind': { l: 'בקרת יציבות', i: 'fas fa-car-side', c: 'בטיחות פסיבית', f: 'bool' },
+      'hayshaney_hagorot_ind': { l: 'חיישני חגורות', i: 'fas fa-user-shield', c: 'בטיחות פסיבית', f: 'bool' },
+      'hayshaney_lahatz_avir_batzmigim_ind': { l: 'חיישני לחץ אוויר', i: 'fas fa-tire-pressure-warning', c: 'בטיחות פסיבית', f: 'bool' },
 
-      // Safety & Accessories (בטיחות ואבזור)
-      'ramat_eivzur_betihuty': { l: 'רמת בטיחות', i: 'fas fa-shield-alt', c: 'בטיחות ואבזור' , t: 'bar', max: 8 },
-      'mispar_kariot_avir': { l: 'כריות אוויר', i: 'fas fa-air-freshener', c: 'בטיחות ואבזור' },
-      'bakarat_yatzivut_ind': { l: 'בקרת יציבות', i: 'fas fa-car-side', c: 'בטיחות ואבזור', f: 'bool' },
-      'abs_ind': { l: 'ABS', i: 'fas fa-car-burst', c: 'בטיחות ואבזור', f: 'bool' },
-      'bakarat_stiya_menativ_ind': { l: 'התראת סטיה מנתיב', i: 'fas fa-road-bridge', c: 'בטיחות ואבזור', f: 'bool' },
-      'bakarat_stiya_activ_s': { l: 'בקרת סטיה אקטיבית', i: 'fas fa-road-bridge', c: 'בטיחות ואבזור', f: 'bool' },
-      'bakarat_stiya_menativ_makor_hatkana': {l: 'מקור בקרת סטיה', i: 'fas fa-cogs', c: 'בטיחות ואבזור'},
-      'nitur_merhak_milfanim_ind': { l: 'ניטור מרחק מלפנים', i: 'fas fa-car-on', c: 'בטיחות ואבזור', f: 'bool' },
-      'bakarat_shyut_adaptivit_ind': { l: 'בקרת שיוט אדפטיבית', i: 'fas fa-tachometer-alt-average', c: 'בטיחות ואבזור', f: 'bool' },
-      'matzlemat_reverse_ind': { l: 'מצלמת רוורס', i: 'fas fa-camera-retro', c: 'בטיחות ואבזור', f: 'bool' },
-      'zihuy_holchey_regel_ind': {l: 'זיהוי הולכי רגל', i: 'fas fa-walking', c: 'בטיחות ואבזור', f:'bool'},
-      'zihuy_rechev_do_galgali': {l: 'זיהוי רכב דו-גלגלי', i:'fas fa-motorcycle', c:'בטיחות ואבזור', f:'bool'},
-      'blima_otomatit_nesia_leahor': {l: 'בלימה אוטונומית ברוורס', i: 'fas fa-car-crash', c: 'בטיחות ואבזור', f:'bool'},
-      'grira_nm': { l: 'וו גרירה', i: 'fas fa-trailer', c: 'בטיחות ואבזור' },
-      'halon_bagg_ind': {l: 'חלון בגג', i: 'fas fa-cloud-sun', c: 'בטיחות ואבזור', f: 'bool'},
-      'galgaley_sagsoget_kala_ind': {l: 'ג׳נט סגסוגת', i: 'fas fa-compact-disc', c: 'בטיחות ואבזור', f: 'bool'},
-      'zihuy_beshetah_nistar_ind': {l: 'זיהוי בשטח מת', i: 'fas fa-eye-slash', c: 'בטיחות ואבזור', f:'bool'},
-      'zihuy_tamrurey_tnua_ind': {l: 'זיהוי תמרורים', i: 'fas fa-traffic-light', c: 'בטיחות ואבזור', f:'bool'},
-      'shlita_automatit_beorot_gvohim_ind': {l: 'שליטה אוטומטית באורות גבוהים', i: 'fas fa-lightbulb', c: 'בטיחות ואבזור', f:'bool'},
-      'stone_proof_nm': { l: 'מיגון אבנים', i: 'fas fa-shield-halved', c: 'בטיחות ואבזור' },
-      'bullet_proof_nm': { l: 'מיגון ירי', i: 'fas fa-shield-virus', c: 'בטיחות ואבזור' },
-
+      // Active Safety Systems (מערכות בטיחות אקטיביות)
+      'bakarat_stiya_menativ_ind': { l: 'התראת סטיה מנתיב', i: 'fas fa-road-bridge', c: 'מערכות בטיחות אקטיביות', f: 'bool' },
+      'bakarat_stiya_activ_s': { l: 'בקרת סטיה אקטיבית', i: 'fas fa-road-circle-exclamation', c: 'מערכות בטיחות אקטיביות', f: 'bool' },
+      'nitur_merhak_milfanim_ind': { l: 'ניטור מרחק מלפנים', i: 'fas fa-car-on', c: 'מערכות בטיחות אקטיביות', f: 'bool' },
+      'zihuy_matzav_hitkarvut_mesukenet_ind': { l: 'התראת התנגשות', i: 'fas fa-car-burst', c: 'מערכות בטיחות אקטיביות', f: 'bool' },
+      'bakarat_shyut_adaptivit_ind': { l: 'בקרת שיוט אדפטיבית', i: 'fas fa-tachometer-alt-average', c: 'מערכות בטיחות אקטיביות', f: 'bool' },
+      'zihuy_holchey_regel_ind': {l: 'זיהוי הולכי רגל', i: 'fas fa-walking', c: 'מערכות בטיחות אקטיביות', f:'bool'},
+      'blimat_hirum_lifnei_holhei_regel_ofanaim': { l: 'בלימת חירום (הולכי רגל ודו-גלגלי)', i: 'fas fa-person-biking', c: 'מערכות בטיחות אקטיביות', f: 'bool' },
+      'zihuy_rechev_do_galgali': {l: 'זיהוי רכב דו-גלגלי', i:'fas fa-motorcycle', c:'מערכות בטיחות אקטיביות', f:'bool'},
+      'blima_otomatit_nesia_leahor': {l: 'בלימה אוטונומית ברוורס', i: 'fas fa-car-crash', c: 'מערכות בטיחות אקטיביות', f:'bool'},
+      'zihuy_beshetah_nistar_ind': {l: 'ניטור שטח מת', i: 'fas fa-eye-slash', c: 'מערכות בטיחות אקטיביות', f:'bool'},
+      'hitnagshut_cad_shetah_met': { l: 'מניעת התנגשות בשטח מת', i: 'fas fa-car-building', c: 'מערכות בטיחות אקטיביות', f: 'bool' },
+      'zihuy_tamrurey_tnua_ind': {l: 'זיהוי תמרורים', i: 'fas fa-traffic-light', c: 'מערכות בטיחות אקטיביות', f:'bool'},
+      'shlita_automatit_beorot_gvohim_ind': {l: 'שליטה אוטומטית באורות גבוהים', i: 'fas fa-lightbulb-on', c: 'מערכות בטיחות אקטיביות', f:'bool'},
+      'maarechet_ezer_labalam_ind': { l: 'מערכת עזר לבלימה', i: 'fas fa-brake-warning', c: 'מערכות בטיחות אקטיביות', f: 'bool' },
+      'bakarat_mehirut_isa': { l: 'בקרת מהירות חכמה (ISA)', i: 'fas fa-gauge-simple-high', c: 'מערכות בטיחות אקטיביות', f: 'bool' },
+      'alco_lock': { l: 'נעילת אלכוהול', i: 'fas fa-user-lock', c: 'מערכות בטיחות אקטיביות', f: 'bool' },
+      'stone_proof_nm': { l: 'מיגון אבנים', i: 'fas fa-shield-halved', c: 'מערכות בטיחות אקטיביות' },
+      'bullet_proof_nm': { l: 'מיגון ירי', i: 'fas fa-shield-virus', c: 'מערכות בטיחות אקטיביות' },
+      
+      // Equipment & Comfort (אבזור ונוחות)
+      'ramat_gimur': { l: 'רמת גימור', i: 'fas fa-star', c: 'אבזור ונוחות' },
+      'mazgan_ind': { l: 'מזגן', i: 'fas fa-snowflake', c: 'אבזור ונוחות', f: 'bool' },
+      'hege_koah_ind': { l: 'הגה כוח', i: 'fas fa-steering-wheel', c: 'אבזור ונוחות', f: 'bool' },
+      'mispar_halonot_hashmal': { l: 'חלונות חשמל', i: 'fas fa-window-maximize', c: 'אבזור ונוחות' },
+      'halon_bagg_ind': {l: 'חלון בגג', i: 'fas fa-cloud-sun', c: 'אבזור ונוחות', f: 'bool'},
+      'matzlemat_reverse_ind': { l: 'מצלמת רוורס', i: 'fas fa-camera-retro', c: 'אבזור ונוחות', f: 'bool' },
+      'grira_nm': { l: 'וו גרירה', i: 'fas fa-trailer', c: 'אבזור ונוחות' },
+      
       // Emissions & Environment (פליטות וסביבה)
       'kvutzat_zihum': { l: 'קבוצת זיהום', i: 'fas fa-smog', c: 'פליטות וסביבה', t: 'bar', max: 15 },
       'technologiat_hanaa_nm': { l: 'טכנולוגיית הנעה', i: 'fas fa-charging-station', c: 'פליטות וסביבה' },
@@ -485,6 +479,9 @@
       'kamut_CO2': { l: 'פליטת CO2 (NEDC)', i: 'fas fa-cloud', c: 'פליטות וסביבה' },
       'kamut_NOX': { l: 'פליטת NOX', i: 'fas fa-cloud', c: 'פליטות וסביבה' },
       'kamut_PM10': { l: 'פליטת PM10', i: 'fas fa-cloud', c: 'פליטות וסביבה' },
+      'kamut_CO2_city': { l: 'פליטת CO2 (עירוני)', i: 'fas fa-city', c: 'פליטות וסביבה' },
+      'kamut_CO2_hway': { l: 'פליטת CO2 (בינעירוני)', i: 'fas fa-road', c: 'פליטות וסביבה' },
+      'sug_mamir_nm': { l: 'סוג ממיר', i: 'fas fa-recycle', c: 'פליטות וסביבה' },
       'taarich_hatkana': {l: 'תאריך התקנת מסנן', i:'fas fa-calendar-check', c:'פליטות וסביבה', f:'date' },
     };
 
@@ -502,7 +499,7 @@
             statusMessage += `<div class="status-message success"><strong>נמצא תו נכה פעיל.</strong><br><small>הופק בתאריך: ${formatDate(vehicle.disabledPermit[0]['TAARICH HAFAKAT TAG'])} | סוג: ${vehicle.disabledPermit[0]['SUG TAV'] === 1 ? 'כיסא גלגלים' : 'רגיל'}</small></div>`;
         }
         if (vehicle.safetyDiscount?.length > 0) {
-            statusMessage += `<div class="status-message success"><strong>הרכב זכאי להנחה באגרת הרישוי בגין התקנת מערכת בטיחות.</strong></div>`;
+            statusMessage += `<div class="status-message success"><strong>הרכב יהיה זכאי להנחה באגרת רישוי במידה ותותקן בו מערכת בטיחות (כדוגמת מובילאיי).</strong></div>`;
         }
 
         licensePlateDisplay.innerHTML = `<div class="license-plate"><div class="plate-country"><span class="flag">🇮🇱</span><span class="il">IL</span><span class="israel">ישראל</span></div><div class="plate-number">${formatPlate(plate)}</div></div>`;
@@ -516,7 +513,7 @@
         if (sourceKey === 'twoWheeled') {
             vehicle.mispar_mekomot_leyd_nahag = null;
         }
-        if (sourceKey === 'publicTransport' || sourceKey === 'heavy') {
+        if (sourceKey === 'publicTransport' || sourceKey === 'heavy' || sourceKey === 'cme') {
             vehicle.grira_nm = null;
         }
 
@@ -553,7 +550,15 @@
         }
         
         // בניית סדר הקטגוריות באופן דינמי
-        const categoryOrder = ['כללי וזיהוי', 'רישוי ובעלות', 'מנוע והנעה', 'מידות ומשקלים', 'תחבורה ציבורית וצי רכב', 'בטיחות ואבזור', 'פליטות וסביבה'];
+        const categoryOrder = ['כללי וזיהוי', 'רישוי ובעלות', 'מנוע והנעה', 'מידות ומשקלים', 'צמיגים וחישוקים', 'תחבורה ציבורית וצי רכב', 'נתוני צמ"ה ורכב כבד', 'בטיחות פסיבית', 'מערכות בטיחות אקטיביות', 'אבזור ונוחות', 'פליטות וסביבה'];
+        if (sourceKey === 'twoWheeled') {
+            const categoriesToRemove = ['תחבורה ציבורית וצי רכב', 'נתוני צמ"ה ורכב כבד'];
+            categoriesToRemove.forEach(cat => {
+                const index = categoryOrder.indexOf(cat);
+                if (index > -1) categoryOrder.splice(index, 1);
+            });
+        }
+
         let html = '';
         categoryOrder.forEach(cat => {
             if (categorized[cat]) {
@@ -583,8 +588,23 @@
     plateInput.addEventListener("keydown", (e) => { if (e.key === "Enter") { e.preventDefault(); searchVehicle(); } });
     document.getElementById('printBtn').addEventListener('click', () => window.print());
     document.getElementById('downloadBtn').addEventListener('click', () => { html2canvas(document.querySelector(".results-wrapper"),{scrollY:-window.scrollY}).then(c=>{let l=document.createElement('a');l.download=`car-${currentPlate}.png`;l.href=c.toDataURL();l.click();});});
-    document.getElementById('shareBtn').addEventListener('click', async () => { const url = `${location.origin}${location.pathname}?search=${currentPlate}`; if(navigator.share){try{await navigator.share({title:`פרטי רכב: ${formatPlate(currentPlate)}`,url})}catch(e){}}else{try{await navigator.clipboard.writeText(url);const b=document.getElementById('shareBtn');b.innerHTML='<i class="fas fa-check"></i> הועתק!';setTimeout(()=>{b.innerHTML='<i class="fas fa-share-alt"></i> שיתוף';},2000)}catch{prompt("העתקת קישור:",url)}}});
+    document.getElementById('shareBtn').addEventListener('click', async () => { 
+        const url = `${CANONICAL_URL}?search=${currentPlate}`; 
+        if(navigator.share){
+            try { await navigator.share({title:`פרטי רכב: ${formatPlate(currentPlate)}`,url}) } catch(e){}
+        } else {
+            try {
+                await navigator.clipboard.writeText(url);
+                const b=document.getElementById('shareBtn');
+                b.innerHTML='<i class="fas fa-check"></i> הועתק!';
+                setTimeout(()=>{b.innerHTML='<i class="fas fa-share-alt"></i> שיתוף';},2000)
+            } catch {
+                prompt("העתקת קישור:",url)
+            }
+        }
+    });
     document.addEventListener('DOMContentLoaded', () => { document.getElementById('footer-year').textContent = `© ${new Date().getFullYear()} MyOto. כל הזכויות שמורות.`; const p = new URLSearchParams(window.location.search).get('search'); if(p){plateInput.value = formatPlate(p); searchVehicle();} });
   </script>
+
 </body>
 </html>
