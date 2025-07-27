@@ -518,6 +518,13 @@
         licensePlateDisplay.innerHTML = `<div class="license-plate"><div class="plate-country"><span class="flag">🇮🇱</span><span class="il">IL</span><span class="israel">ישראל</span></div><div class="plate-number">${formatPlate(plate)}</div></div>`;
         licensePlateDisplay.classList.remove('hidden');
 
+        // --- התיקון ---
+        // חישוב מספר היד על בסיס היסטוריית הבעלויות, אם קיימת
+        if (vehicle.history_2 && vehicle.history_2.length > 0) {
+            vehicle.mispar_yad_nochichi = vehicle.history_2.length;
+        }
+        // --- סוף התיקון ---
+
         // --- ניקוי נתונים והתאמה לפי סוג הרכב ---
         if (vehicle.production_country) vehicle.tozeret_eretz_nm = null;
         if (vehicle.SeatsNum != null) vehicle.mispar_moshavim = null;
