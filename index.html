@@ -82,19 +82,19 @@
     </div>
 
     <div style="border: 1px solid #b3d7ff; background-color: #eaf4ff; padding: 11px; border-radius: 10px; text-align: center; font-size: 15px; margin-top: 20px;">
-  <p>
-  המידע באתר מבוסס על נתונים ממאגרי המידע הממשלתיים הפתוחים, ומוצג כשירות לציבור בלבד.
-  <br>
-  האתר אינו אחראי לדיוק המידע או לעדכניותו.
-  </p>
-    <p>
-      לפרטים נוספים על האתר ומקור הנתונים, הכנסו 
-      <a href="https://rechavimzelaze.ovh/post/75249" target="_blank" rel="noopener noreferrer">לכאן</a>.
+      <p>
+      המידע באתר מבוסס על נתונים ממאגרי המידע הממשלתיים הפתוחים, ומוצג כשירות לציבור בלבד.
       <br>
-      להערות תגובות ומשוב, כנסו 
-      <a href="https://rechavimzelaze.ovh/post/72731" target="_blank" rel="noopener noreferrer">לכאן</a>.
-    </p>
-  </div>
+      האתר אינו אחראי לדיוק המידע או לעדכניותו.
+      </p>
+        <p>
+          לפרטים נוספים על האתר ומקור הנתונים, הכנסו 
+          <a href="https://rechavimzelaze.ovh/post/75249" target="_blank" rel="noopener noreferrer">לכאן</a>.
+          <br>
+          להערות תגובות ומשוב, כנסו 
+          <a href="https://rechavimzelaze.ovh/post/72731" target="_blank" rel="noopener noreferrer">לכאן</a>.
+        </p>
+    </div>
 
   </div>
   <footer>
@@ -524,7 +524,12 @@
 
         // חישוב מספר היד על בסיס היסטוריית הבעלויות, אם קיימת
         if (vehicle.history_2 && vehicle.history_2.length > 0) {
-            vehicle.mispar_yad_nochichi = vehicle.history_2.length;
+            // סינון בעלויות מסוג 'סחר' (סוחרי רכב) מהספירה של "יד"
+            const privateOwners = vehicle.history_2.filter(owner => owner.baalut !== 'סחר');
+            // הצגת מספר היד רק אם יש בעלים שאינם סוחרים
+            if (privateOwners.length > 0) {
+                vehicle.mispar_yad_nochichi = privateOwners.length;
+            }
         }
 
         // --- ניקוי נתונים והתאמה לפי סוג הרכב ---
