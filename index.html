@@ -524,8 +524,8 @@
 
         // חישוב מספר היד על בסיס היסטוריית הבעלויות, אם קיימת
         if (vehicle.history_2 && vehicle.history_2.length > 0) {
-            // סינון בעלויות מסוג 'סחר' (סוחרי רכב) מהספירה של "יד"
-            const privateOwners = vehicle.history_2.filter(owner => owner.baalut !== 'סחר');
+            // סינון בעלויות מסוג 'סוחר' מהספירה של "יד"
+            const privateOwners = vehicle.history_2.filter(owner => owner.baalut !== 'סוחר');
             // הצגת מספר היד רק אם יש בעלים שאינם סוחרים
             if (privateOwners.length > 0) {
                 vehicle.mispar_yad_nochichi = privateOwners.length;
